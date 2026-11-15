@@ -2,7 +2,8 @@ package com.code02.autofarm;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
+import com.code02.autofarm.core.Box;
+import com.code02.autofarm.core.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,45 +50,36 @@ final class Points {
         }
     }
 
-    // Thu tài nguyên
-    static final String COLLECT_GOLD = "collect_gold";
-    static final String COLLECT_ELIXIR = "collect_elixir";
-    static final String COLLECT_DARK = "collect_dark";
-    // Farm
-    static final String TRAIN_OPEN = "train_open";
-    static final String QUICK_TRAIN = "quick_train";
-    static final String TRAIN_ARMY = "train_army";
-    static final String TRAIN_CLOSE = "train_close";
-    static final String ATTACK = "attack";
-    static final String FIND_MATCH = "find_match";
-    static final String NEXT = "next";
-    static final String LOOT_GOLD = "loot_gold";
-    static final String LOOT_ELIXIR = "loot_elixir";
-    static final String TROOP1 = "troop1";
-    static final String TROOP2 = "troop2";
-    static final String HERO = "hero";
-    static final String DEPLOY_A = "deploy_a";
-    static final String DEPLOY_B = "deploy_b";
-    static final String END_BATTLE = "end_battle";
-    static final String SURRENDER_OK = "surrender_ok";
-    static final String RETURN_HOME = "return_home";
-    // Nâng cấp
-    static final String BUILDER = "builder";
-    static final String UPGRADE_ROW2 = "upgrade_row2";
-    static final String UPGRADE_ROW1 = "upgrade_row1";
-    static final String UPGRADE_BTN = "upgrade_btn";
-    static final String UPGRADE_CONFIRM = "upgrade_confirm";
-    // Thông báo
-    static final String[] POPUPS = {"close1", "close2", "close3", "close4", "close5", "close6"};
-    static final String[] COLLECTS = {COLLECT_GOLD, COLLECT_ELIXIR, COLLECT_DARK};
+    // Tên các mục: dùng chung với lõi bot (core/Keys).
+    static final String COLLECT_GOLD = Keys.COLLECT_GOLD;
+    static final String COLLECT_ELIXIR = Keys.COLLECT_ELIXIR;
+    static final String COLLECT_DARK = Keys.COLLECT_DARK;
+    static final String TRAIN_OPEN = Keys.TRAIN_OPEN;
+    static final String QUICK_TRAIN = Keys.QUICK_TRAIN;
+    static final String TRAIN_ARMY = Keys.TRAIN_ARMY;
+    static final String TRAIN_CLOSE = Keys.TRAIN_CLOSE;
+    static final String ATTACK = Keys.ATTACK;
+    static final String FIND_MATCH = Keys.FIND_MATCH;
+    static final String NEXT = Keys.NEXT;
+    static final String LOOT_GOLD = Keys.LOOT_GOLD;
+    static final String LOOT_ELIXIR = Keys.LOOT_ELIXIR;
+    static final String TROOP1 = Keys.TROOP1;
+    static final String TROOP2 = Keys.TROOP2;
+    static final String HERO = Keys.HERO;
+    static final String DEPLOY_A = Keys.DEPLOY_A;
+    static final String DEPLOY_B = Keys.DEPLOY_B;
+    static final String END_BATTLE = Keys.END_BATTLE;
+    static final String SURRENDER_OK = Keys.SURRENDER_OK;
+    static final String RETURN_HOME = Keys.RETURN_HOME;
+    static final String[] POPUPS = Keys.POPUPS;
 
     private static Def tap(String key, String label, String hint, String group, Scope scope,
                            boolean template, boolean passTap) {
         return new Def(key, label, hint, group, Kind.TAP, scope, template, passTap);
     }
 
-    private static Def region(String key, String label, String hint) {
-        return new Def(key, label, hint, G_FARM, Kind.REGION, Scope.FULL, false, false);
+    private static Def region(String key, String label, String hint, String group) {
+        return new Def(key, label, hint, group, Kind.REGION, Scope.FULL, false, false);
     }
 
     static final Def[] ALL;
@@ -102,8 +94,8 @@ final class Points {
         l.add(tap(ATTACK, "Nút Tấn công! (góc dưới trái)", "Bắt buộc – dùng để nhận biết đang ở làng chính", G_FARM, Scope.NEAR, true, true));
         l.add(tap(FIND_MATCH, "Nút Tìm trận", "Bắt buộc – app sẽ bấm, tốn vàng tìm trận", G_FARM, Scope.NEAR, true, true));
         l.add(tap(NEXT, "Nút Tiếp theo (khi đang xem làng địch)", "Nên có – để bỏ qua làng nghèo", G_FARM, Scope.NEAR, true, false));
-        l.add(region(LOOT_GOLD, "Vùng SỐ VÀNG có thể cướp (góc trên trái)", "Chạm 2 góc của ô chứa số vàng"));
-        l.add(region(LOOT_ELIXIR, "Vùng SỐ TIÊN DƯỢC có thể cướp", "Chạm 2 góc của ô chứa số tiên dược"));
+        l.add(region(LOOT_GOLD, "Vùng SỐ VÀNG có thể cướp (góc trên trái)", "Chạm 2 góc của ô chứa số vàng", G_FARM));
+        l.add(region(LOOT_ELIXIR, "Vùng SỐ TIÊN DƯỢC có thể cướp", "Chạm 2 góc của ô chứa số tiên dược", G_FARM));
         l.add(tap(TROOP1, "Ô quân thứ 1 (thanh quân phía dưới)", "Nên có", G_FARM, Scope.NEAR, false, true));
         l.add(tap(TROOP2, "Ô quân thứ 2", "Có thể bỏ qua", G_FARM, Scope.NEAR, false, false));
         l.add(tap(HERO, "Ô anh hùng (Vua / Nữ hoàng)", "Có thể bỏ qua", G_FARM, Scope.NEAR, false, false));
@@ -116,12 +108,17 @@ final class Points {
         l.add(tap(COLLECT_GOLD, "Biểu tượng VÀNG nổi trên mỏ vàng", "Chỉ hiện khi có vàng để thu", G_COLLECT, Scope.FULL, true, true));
         l.add(tap(COLLECT_ELIXIR, "Biểu tượng TIÊN DƯỢC nổi trên bơm", "Chỉ hiện khi có tiên dược để thu", G_COLLECT, Scope.FULL, true, true));
         l.add(tap(COLLECT_DARK, "Biểu tượng TIÊN DƯỢC ĐEN nổi trên khoan", "Có thể bỏ qua", G_COLLECT, Scope.FULL, true, true));
-        // --- Nâng cấp
-        l.add(tap(BUILDER, "Biểu tượng Thợ xây (trên cùng giữa)", "Bắt buộc cho tự nâng cấp – app sẽ mở danh sách", G_UPGRADE, Scope.NEAR, true, true));
-        l.add(tap(UPGRADE_ROW2, "Dòng THỨ HAI trong danh sách nâng cấp", "Để bot thử thêm dòng 2, 3 – có thể bỏ qua", G_UPGRADE, Scope.NEAR, false, false));
-        l.add(tap(UPGRADE_ROW1, "Dòng ĐẦU TIÊN trong danh sách nâng cấp", "Bắt buộc – app sẽ bấm để chọn công trình", G_UPGRADE, Scope.NEAR, false, true));
-        l.add(tap(UPGRADE_BTN, "Nút Nâng cấp (hàng nút dưới công trình)", "Bắt buộc – app sẽ bấm để mở bảng nâng cấp", G_UPGRADE, Scope.FULL, true, true));
-        l.add(tap(UPGRADE_CONFIRM, "Nút giá nâng cấp (xác nhận) trong bảng", "Bắt buộc – app KHÔNG bấm, bạn tự đóng bảng", G_UPGRADE, Scope.FULL, true, false));
+        // --- Kho & nâng cấp
+        l.add(region(Keys.OWN_GOLD, "Vùng SỐ VÀNG của bạn (góc trên phải, ở làng)", "Để tối ưu tài nguyên – chỉ khoanh phần chữ số", G_UPGRADE));
+        l.add(region(Keys.OWN_ELIXIR, "Vùng SỐ TIÊN DƯỢC của bạn", "Chỉ khoanh phần chữ số", G_UPGRADE));
+        l.add(region(Keys.OWN_DARK, "Vùng SỐ TIÊN DƯỢC ĐEN của bạn", "Có thể bỏ qua", G_UPGRADE));
+        l.add(region(Keys.BUILDERS_FREE, "Vùng số thợ rảnh (vd \"1/5\") cạnh biểu tượng thợ xây", "Nên có – bot không mở danh sách khi hết thợ", G_UPGRADE));
+        l.add(tap(Keys.BUILDER, "Biểu tượng Thợ xây (trên cùng giữa)", "Bắt buộc – app sẽ bấm để mở danh sách", G_UPGRADE, Scope.NEAR, true, true));
+        l.add(region(Keys.UPGRADE_ROW1, "DÒNG ĐẦU TIÊN trong danh sách (từ đầu tên tới hết giá)", "Bắt buộc – bot đọc tên + giá trong khung này", G_UPGRADE));
+        l.add(tap(Keys.UPGRADE_ROW2, "Giữa DÒNG THỨ HAI trong danh sách", "Nên có – để bot đọc nhiều dòng và cuộn trang", G_UPGRADE, Scope.NEAR, false, false));
+        l.add(tap(Keys.UPGRADE_BTN, "Nút Nâng cấp (hàng nút dưới công trình)", "Bấm \"Ẩn 5 giây\", tự chọn 1 công trình, rồi chạm nút này", G_UPGRADE, Scope.FULL, true, true));
+        l.add(tap(Keys.UPGRADE_CONFIRM, "Nút giá nâng cấp (xác nhận) trong bảng", "Bắt buộc – app KHÔNG bấm, dạy xong tự đóng bảng", G_UPGRADE, Scope.FULL, true, false));
+        l.add(tap(Keys.UPGRADE_BTN_ELIXIR, "Nút nâng cấp TƯỜNG bằng tiên dược", "Chỉ khi chọn tường (nhà chính 9+) – có thể bỏ qua", G_UPGRADE, Scope.FULL, true, false));
         // --- Thông báo
         for (int i = 0; i < POPUPS.length; i++) {
             l.add(tap(POPUPS[i], "Nút X / Đóng / OK / Thử lại / Tải lại – mẫu " + (i + 1),
@@ -130,7 +127,7 @@ final class Points {
         ALL = l.toArray(new Def[0]);
     }
 
-    static final String[] REQUIRED = {ATTACK, FIND_MATCH, DEPLOY_A, RETURN_HOME};
+    static final String[] REQUIRED = Keys.REQUIRED;
 
     private Points() {
     }
@@ -158,12 +155,12 @@ final class Points {
         prefs(c).edit().putInt(key + "_x", x).putInt(key + "_y", y).apply();
     }
 
-    static Rect getRegion(Context c, String key) {
+    static Box getRegion(Context c, String key) {
         int[] a = get(c, key + "_1");
         int[] b = get(c, key + "_2");
         if (a == null || b == null) return null;
-        Rect r = new Rect(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1]));
-        if (r.width() < 4 || r.height() < 4) return null;
+        Box r = new Box(a[0], a[1], b[0], b[1]);
+        if (r.w() < 4 || r.h() < 4) return null;
         return r;
     }
 

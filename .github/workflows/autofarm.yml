@@ -24,6 +24,17 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Run simulator tests (bot logic on a fake game)
+        run: |
+          set -o pipefail
+          mkdir -p build/sim
+          javac -encoding UTF-8 -d build/sim $(find app/src/main/java/com/code02/autofarm/core sim/src -name '*.java')
+          for main in $(grep -rl "public static void main" sim/src | sed 's|sim/src/||; s|\.java$||; s|/|.|g' | sort); do
+            echo "=== $main ==="
+            java -Dstdout.encoding=UTF-8 -cp build/sim "$main" | tee -a build/sim-report.txt
+          done
+          { echo '```'; cat build/sim-report.txt | grep -v "đang đánh …" | tail -200; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build APK
         run: |
           chmod +x gradlew

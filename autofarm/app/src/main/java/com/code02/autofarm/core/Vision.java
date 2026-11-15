@@ -1,6 +1,4 @@
-package com.code02.autofarm;
-
-import android.graphics.Bitmap;
+package com.code02.autofarm.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +8,7 @@ import java.util.List;
  * Nhận diện hình trên ảnh chụp màn hình: so khớp mẫu (normalized cross-correlation)
  * trên ảnh xám thu nhỏ, tìm thô ở 1/4 rồi tinh chỉnh ở 1/2 độ phân giải.
  */
-final class Vision {
+public final class Vision {
 
     private Vision() {
     }
@@ -28,27 +26,26 @@ final class Vision {
         }
 
         /** Thu nhỏ f lần (lấy trung bình khối f×f) và chuyển xám. */
-        static Gray of(Bitmap b, int f) {
-            int bw = b.getWidth();
-            int bh = b.getHeight();
+        static Gray of(Img b, int f) {
+            int bw = b.w;
+            int bh = b.h;
             int w = Math.max(1, bw / f);
             int h = Math.max(1, bh / f);
             int[] out = new int[w * h];
-            int rows = Math.min(f, bh);
-            int[] row = new int[bw * rows];
-            int n = f * f;
+            int[] src = b.px;
             for (int y = 0; y < h; y++) {
-                b.getPixels(row, 0, bw, 0, Math.min(y * f, bh - rows), bw, rows);
                 for (int x = 0; x < w; x++) {
                     int s = 0;
-                    for (int j = 0; j < rows; j++) {
-                        int base = j * bw + x * f;
+                    int n = 0;
+                    for (int j = 0; j < f && y * f + j < bh; j++) {
+                        int base = (y * f + j) * bw + x * f;
                         for (int i = 0; i < f && x * f + i < bw; i++) {
-                            int c = row[base + i];
+                            int c = src[base + i];
                             s += (((c >> 16) & 255) * 77 + ((c >> 8) & 255) * 150 + (c & 255) * 29) >> 8;
+                            n++;
                         }
                     }
-                    out[y * w + x] = s / n;
+                    out[y * w + x] = n == 0 ? 0 : s / n;
                 }
             }
             return new Gray(w, h, out);
@@ -103,42 +100,42 @@ final class Vision {
     }
 
     /** Một ảnh chụp màn hình đã chuẩn bị sẵn để tìm kiếm. */
-    static final class Frame {
-        final Bitmap bmp;
+    public static final class Frame {
+        public final Img img;
         final Gray g2;
         final Gray g4;
         private final Integral i4;
 
-        Frame(Bitmap b) {
-            bmp = b;
+        public Frame(Img b) {
+            img = b;
             g2 = Gray.of(b, 2);
             g4 = g2.half();
             i4 = new Integral(g4);
         }
 
-        int width() {
-            return bmp.getWidth();
+        public int width() {
+            return img.w;
         }
 
-        int height() {
-            return bmp.getHeight();
+        public int height() {
+            return img.h;
         }
     }
 
     /** Hình mẫu đã dạy. */
-    static final class Tpl {
-        final int side;
+    public static final class Tpl {
+        public final int side;
         final Prep p2;
         final Prep p4;
 
-        Tpl(Bitmap crop) {
-            side = Math.max(crop.getWidth(), crop.getHeight());
+        public Tpl(Img crop) {
+            side = Math.max(crop.w, crop.h);
             Gray g2 = Gray.of(crop, 2);
             p2 = Prep.of(g2);
             p4 = Prep.of(g2.half());
         }
 
-        boolean usable() {
+        public boolean usable() {
             return p2 != null && p4 != null;
         }
     }
@@ -174,10 +171,10 @@ final class Vision {
         }
     }
 
-    static final class Match {
-        final int x;
-        final int y;
-        final float score;
+    public static final class Match {
+        public final int x;
+        public final int y;
+        public final float score;
 
         Match(int x, int y, float score) {
             this.x = x;
@@ -234,7 +231,7 @@ final class Vision {
      * Tìm mọi vị trí giống mẫu trong vùng (tọa độ màn hình) mà mẫu nằm gọn bên trong.
      * Kết quả là tâm của mẫu theo tọa độ màn hình, xếp theo độ giống giảm dần.
      */
-    static List<Match> findAll(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr, int max) {
+    public static List<Match> findAll(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr, int max) {
         List<Match> out = new ArrayList<>();
         if (t == null || !t.usable()) return out;
         Prep p4 = t.p4;
@@ -327,29 +324,52 @@ final class Vision {
         return out;
     }
 
-    static Match find(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr) {
+    public static Match find(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr) {
         List<Match> l = findAll(f, t, rx0, ry0, rx1, ry1, thr, 1);
         return l.isEmpty() ? null : l.get(0);
     }
 
-    /** Tỉ lệ điểm ảnh màu đỏ (chữ giá màu đỏ = không đủ tài nguyên) quanh một điểm. */
-    static float redRatio(Bitmap b, int cx, int cy, int half) {
-        int x0 = clamp(cx - half, 0, b.getWidth() - 1);
-        int x1 = clamp(cx + half, 0, b.getWidth() - 1);
-        int y0 = clamp(cy - half / 2, 0, b.getHeight() - 1);
-        int y1 = clamp(cy + half / 2, 0, b.getHeight() - 1);
-        int total = 0;
-        int red = 0;
-        for (int y = y0; y <= y1; y += 2) {
-            for (int x = x0; x <= x1; x += 2) {
-                int c = b.getPixel(x, y);
-                int r = (c >> 16) & 255;
-                int g = (c >> 8) & 255;
-                int bl = c & 255;
-                total++;
-                if (r > 170 && g < 110 && bl < 110 && r - g > 90) red++;
+    /** Tỉ lệ điểm ảnh màu đỏ (chữ giá màu đỏ = không đủ tài nguyên) trong vùng. */
+    public static float redRatio(Img b, Box r) {
+        int[] c = countColors(b, r);
+        return c[0] == 0 ? 0 : (float) c[1] / c[0];
+    }
+
+    /** Loại tài nguyên theo màu biểu tượng trong vùng: 1 vàng, 2 tiên dược, 3 tiên dược đen, 0 không rõ. */
+    public static int resourceColor(Img b, Box r) {
+        int[] c = countColors(b, r);
+        if (c[0] == 0) return 0;
+        int best = 0;
+        int bestN = Math.max(4, c[0] / 100);
+        for (int k = 1; k <= 3; k++) {
+            if (c[k + 1] > bestN) {
+                bestN = c[k + 1];
+                best = k;
             }
         }
-        return total == 0 ? 0 : (float) red / total;
+        return best;
+    }
+
+    /** {tổng, đỏ, vàng, hồng, đen-tím}. */
+    private static int[] countColors(Img b, Box r) {
+        int x0 = clamp(r.l, 0, b.w - 1);
+        int x1 = clamp(r.r, 0, b.w - 1);
+        int y0 = clamp(r.t, 0, b.h - 1);
+        int y1 = clamp(r.b, 0, b.h - 1);
+        int[] n = new int[5];
+        for (int y = y0; y <= y1; y += 2) {
+            for (int x = x0; x <= x1; x += 2) {
+                int c = b.get(x, y);
+                int rr = (c >> 16) & 255;
+                int g = (c >> 8) & 255;
+                int bl = c & 255;
+                n[0]++;
+                if (rr > 170 && g < 110 && bl < 110 && rr - g > 90) n[1]++;
+                else if (rr > 200 && g > 160 && bl < 90) n[2]++;
+                else if (rr > 170 && bl > 150 && g < 110) n[3]++;
+                else if (rr < 90 && g < 70 && bl < 110 && bl > rr + 10) n[4]++;
+            }
+        }
+        return n;
     }
 }

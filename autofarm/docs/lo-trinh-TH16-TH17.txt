@@ -1,0 +1,646 @@
+================================================================================
+        LỘ TRÌNH NÂNG CẤP CLASH OF CLANS: TOWN HALL 16 -> TOWN HALL 17
+                    + ĐỘI HÌNH TẤN CÔNG CHI TIẾT
+================================================================================
+Cập nhật: 15/11/2026
+Dữ liệu tổng hợp từ các hướng dẫn cộng đồng năm 2026 (Blueprint CoC,
+CocBaseDrop, TrophyCoach, CoC Base Guide, Sportskeeda, ghi chú cập nhật của
+Supercell). Xem danh sách nguồn ở cuối file.
+
+LƯU Ý:
+- Supercell thường xuyên chỉnh cân bằng và giảm giá/thời gian nâng cấp.
+  Chi phí, thời gian và số lượng quân trong file là để tham khảo; luôn kiểm tra
+  lại con số trong game trước khi bấm nâng.
+- Phần nào ghi "(gợi ý)" là đề xuất sắp xếp của file này, không phải số liệu
+  chính thức.
+- Ký hiệu [ ] là ô để bạn tự đánh dấu khi đã làm xong.
+
+
+================================================================================
+MỤC LỤC
+================================================================================
+ 1. Nguyên tắc chung (đọc trước)
+ 2. Điều kiện bắt buộc để lên TH17
+ 3. Checklist TH16: phải xong trước khi bấm lên TH17
+ 4. Thứ tự nâng cấp ngay khi lên TH17
+ 5. Lộ trình theo giai đoạn (gợi ý)
+ 6. Tướng (Heroes) & Hero Hall
+ 7. Trang bị tướng (Hero Equipment) & Ore
+ 8. Pet
+ 9. Laboratory: nghiên cứu quân & phép
+10. Phòng thủ TH16 và TH17
+11. Tường (Walls)
+12. Tài nguyên, Dark Elixir & vật phẩm phép (Books, Hammers...)
+13. ĐỘI HÌNH TẤN CÔNG CHI TIẾT
+14. Chọn đội hình nào? Dồn Lab ra sao?
+15. Mẹo đánh War / CWL
+16. Khi nào lên TH18
+17. Bảng checklist tổng
+18. Nguồn tham khảo
+
+
+================================================================================
+1. NGUYÊN TẮC CHUNG (ĐỌC TRƯỚC)
+================================================================================
+1) Tấn công trước, phòng thủ sau. Cúp, sao war và tài nguyên đều đến từ việc
+   đi đánh. Lab, Army Camps, Clan Castle, Hero Hall luôn đứng đầu.
+2) Chỉ chọn MỘT đội hình chính và dồn Lab vào nó. Đừng nâng rải rác mọi quân.
+3) Lúc nào cũng có 1 tướng đang nâng, nhưng không để quá nhiều tướng nằm nghỉ
+   cùng lúc (tối thiểu giữ 2 tướng đi war được).
+4) Không bao giờ để thợ xây rảnh. Nếu chưa đủ tiền cho nâng cấp lý tưởng thì
+   bắt đầu nâng cấp tốt thứ hai.
+5) Book/Hammer dành cho nâng cấp dài (12 ngày trở lên): Town Hall, Monolith,
+   Spell Tower, Eagle Artillery, Firespitter... Nâng cấp ngắn để thợ làm.
+6) Tường là chỗ "xả" vàng/elixir thừa, không cày riêng để xây tường.
+7) Ở TH17, nút thắt lớn nhất không phải thợ xây mà là ORE (đá nâng trang bị).
+
+
+================================================================================
+2. ĐIỀU KIỆN BẮT BUỘC ĐỂ LÊN TH17
+================================================================================
+[ ] Town Hall 16.
+[ ] Eagle Artillery đạt cấp 7 (cấp tối đa).
+[ ] Đã hoàn thành các phòng thủ gộp (merged defenses) theo yêu cầu trong game.
+
+QUAN TRỌNG: Khi bắt đầu nâng lên TH17, Eagle Artillery sẽ được GỘP vào Town
+Hall và KHÔNG thể hoàn tác. Town Hall 17 trở thành vũ khí mới:
+INFERNO ARTILLERY (bắn 4 viên cùng lúc vào 4 mục tiêu khác nhau, gây sát thương
+lan theo thời gian). TH17 KHÔNG còn bom nổ khi Town Hall bị phá (death bomb).
+
+Chi phí lúc TH17 ra mắt: 20.000.000 vàng, 15 ngày (có thể đã được giảm qua các
+đợt cắt giảm chi phí -> kiểm tra trong game). Nên dùng Book of Building.
+
+
+================================================================================
+3. CHECKLIST TH16: PHẢI XONG TRƯỚC KHI BẤM LÊN TH17
+================================================================================
+Không cần vội lên TH17. TH16 là một trong số ít cấp mà chờ thêm vẫn tốt.
+Chỉ bấm lên khi:
+  [ ] Đội hình chính đã nâng gần max ở Lab.
+  [ ] Các công trình ưu tiên (bên dưới) đã xong.
+  [ ] Pet chính đã tiến triển tốt.
+  [ ] Các nâng cấp dùng Book/Hammer đã lên kế hoạch xong hoặc gần xong.
+  [ ] Eagle Artillery cấp 7 (bắt buộc).
+
+--- 3.1 Công trình tấn công (ưu tiên số 1) ---
+  [ ] Laboratory (max TH16)
+  [ ] Army Camps (cả 4)
+  [ ] Clan Castle
+  [ ] Hero Hall (max TH16 = cấp 10)
+  [ ] Blacksmith
+  [ ] Barracks (cấp 18 mở Thrower), Dark Barracks
+  [ ] Spell Factory, Dark Spell Factory
+  [ ] Workshop (Siege)
+  [ ] Pet House
+
+--- 3.2 Tướng TH16 ---
+Thứ tự gợi ý (Blueprint CoC): Royal Champion -> Grand Warden -> Archer Queen
+-> Barbarian King. TrophyCoach: Queen + Warden đồng ưu tiên, rồi Royal
+Champion, rồi Dragon Duke, King, Minion Prince.
+=> Tóm lại: Queen, Warden, RC là bộ ba ưu tiên; King, Duke, Prince theo sau.
+Theo CocBaseDrop: King và Queen lên cấp 100 ở TH16; kỹ năng mạnh lên ở mốc
+25/50/75/100.
+  [ ] Archer Queen max
+  [ ] Grand Warden max
+  [ ] Royal Champion max
+  [ ] Barbarian King (càng cao càng tốt)
+  [ ] Dragon Duke, Minion Prince (nếu đội hình dùng)
+
+--- 3.3 Trang bị TH16 ---
+  [ ] Fireball (Warden) cấp 18+
+  [ ] Frozen Arrow (Queen) cấp 15+
+  [ ] Rage Vial hoặc Giant Gauntlet (King)
+  [ ] Trang bị Warden theo lối đánh (Eternal Tome, Healing Tome, Life Gem...)
+
+--- 3.4 Pet TH16 ---
+  [ ] Unicorn
+  [ ] Phoenix
+  [ ] Spirit Fox
+  [ ] Angry Jelly / pet riêng cho đội hình của bạn
+
+--- 3.5 Phòng thủ TH16 ---
+Ưu tiên cao : Monolith, Spell Towers, Eagle Artillery (bắt buộc cấp 7),
+              Multi-Gear Tower
+Ưu tiên vừa : Scattershots, Inferno Towers, X-Bows
+Ưu tiên thấp: Archer Towers, Cannons, Mortars và phần còn lại
+
+Phòng thủ chế tạo (Crafted Defense / Crafting Station), ở TH16:
+  [ ] Nâng máu (hitpoints) cho cả 3 module
+  [ ] Hoàn thiện Hero Hunter
+  (2 module còn lại để dở cũng được)
+
+--- 3.6 Nghiên cứu TH16 (Lab) ---
+Theo CocBaseDrop:
+  1. Root Riders (đã đạt cap TH16 thì rất mạnh, là xương sống đánh ground)
+  2. Super Miners, Electro Titans, Goblins
+  3. Yeti, Super Dragon, Minions (Minion nếu dùng Minion Prince)
+  Phép/siege cần lấy sớm: Overgrowth Spell, Root Rider Siege Barracks
+  (Log Launcher), Flame Flinger.
+Theo Blueprint: chơi air thì dồn vào Dragons.
+=> Chọn theo đội hình ở mục 13.
+
+
+================================================================================
+4. THỨ TỰ NÂNG CẤP NGAY KHI LÊN TH17
+================================================================================
+Ngày TH17 xong, chia thợ theo thứ tự:
+  1. Laboratory + tướng war chính (cùng ngày). Lab là hàng chờ dài nhất và
+     khóa mọi cấp quân/phép mới. Lab chưa xong thì quân vẫn ở sức TH16.
+  2. Clan Castle + Army Camps.
+  3. Hero Hall lên cấp 11 (max TH17) để mở cấp tướng mới.
+  4. Spell Factory / Dark Spell Factory (nếu có cấp mới).
+  5. Firespitter + Giga Bomb: đặt sớm vì cấp 1 rẻ và thêm mối đe dọa mới.
+  6. Tướng thứ hai, rồi lần lượt các tướng còn lại, MỖI LẦN MỘT.
+  7. Phòng thủ lõi và phòng thủ lan (splash), rồi phòng không.
+  8. Phòng thủ còn lại, ưu tiên cái nào hay bị phá sớm trong log war.
+  9. Tường: chỗ xả vàng thừa; dùng Wall Ring ngay khi có.
+
+Cấp tối đa quan trọng ở TH17:
+  Hero Hall 11 | Laboratory 15 | Pet House 11 | Clan Castle 13
+  Bomber Tower 12 | Wizard Tower 17 | Bomb 12 | Air Bomb 12
+  Giant Bomb 11 | Air Seeking Mine 17 | Walls 17
+Công trình mới khi lên TH17 (lúc ra mắt): Giga Bomb, +1 Archer Tower,
++1 Multi-Archer Tower (cần 2 Archer Tower cấp 21), +1 Ricochet Cannon,
+Firespitter (phòng thủ đặc trưng TH17), phép mới Revive, Helper Hut.
+
+Quân/phép có cấp mới ở TH17 (theo Sportskeeda): Giant 13, Wall Breaker 13,
+Wizard 13, Dragon 12, Electro Dragon 8...
+
+
+================================================================================
+5. LỘ TRÌNH THEO GIAI ĐOẠN (GỢI Ý)
+================================================================================
+Giả định: 6 thợ xây + Builder's Apprentice + Lab Assistant.
+Thời gian chỉ là ước lượng; thực tế phụ thuộc Gold Pass, event, vật phẩm.
+Một nguồn ước tính người chơi TH16 trung bình mất khoảng 8-12 tháng để max
+toàn bộ kể cả tường.
+
+GIAI ĐOẠN A: TH16 CUỐI (trước khi bấm lên)
+  - Hoàn tất mục 3. Eagle Artillery cấp 7 phải xong.
+  - Dồn Book/Hammer: Monolith, Spell Tower, Eagle Artillery.
+  - Tích Book of Building cho chính Town Hall 17.
+  - Cày Ore để Fireball 18+, Frozen Arrow 15+.
+  - Trước khi bấm TH17: dùng hết tài nguyên thừa vào tường.
+
+GIAI ĐOẠN B: TUẦN 1-2 Ở TH17
+  Thợ 1: Laboratory
+  Thợ 2: Archer Queen (hoặc tướng chạy chính của bạn)
+  Thợ 3: Clan Castle
+  Thợ 4: Army Camp
+  Thợ 5: Hero Hall
+  Thợ 6: Firespitter (đặt mới) / Giga Bomb
+  Apprentice: luôn gắn vào nâng cấp dài nhất của thợ.
+  Lab Assistant: luôn gắn vào nghiên cứu đang chạy.
+  Lab: nghiên cứu quân chính + phép dùng nhiều nhất trước.
+
+GIAI ĐOẠN C: THÁNG 1-2
+  - Army Camps còn lại, Spell Factory, Dark Spell Factory.
+  - Grand Warden, rồi Royal Champion (một tướng một lúc).
+  - Pet House, pet của tướng chính (Sneezy được đánh giá ưu tiên cao ở TH17).
+  - Crafted Defense ở TH17: nâng máu cả 3 module, rồi CHỈ Hero Hunter. Dừng.
+  - Inferno Artillery (Town Hall weapon) và Firespitter cấp tiếp theo.
+
+GIAI ĐOẠN D: THÁNG 3-6
+  - Hoàn thiện quân chính ở Lab, sau đó quân phụ / quân dự phòng.
+  - Dragon Duke, King, Minion Prince.
+  - Phòng thủ lan & phòng không: Scattershot, Inferno, Air Defense,
+    Wizard Tower, Bomber Tower, Multi-Archer, Ricochet...
+  - Bẫy: Giga Bomb đặt ở chỗ dễ thành funnel của đối thủ.
+
+GIAI ĐOẠN E: CUỐI TH17
+  - Phòng thủ điểm ở rìa (Cannon, Archer Tower, Mortar...).
+  - Tường.
+  - Chỉ cân nhắc TH18 khi tướng và quân chính đã gần max TH17 (mục 16).
+
+
+================================================================================
+6. TƯỚNG (HEROES) & HERO HALL
+================================================================================
+Hero Hall: TH16 max cấp 10, TH17 max cấp 11. Cấp tối đa của tướng phụ thuộc
+cấp Hero Hall, nên Hero Hall phải được ưu tiên.
+
+Thứ tự ở TH17 (TrophyCoach): Queen -> Warden -> Royal Champion -> (Duke,
+King, Prince).
+Chọn theo lối đánh (CocBaseDrop):
+  - Đánh ground: dựa vào Barbarian King + Archer Queen; Royal Champion
+    thường dọn kết thúc.
+  - Đánh air: dựa vào Minion Prince + Grand Warden.
+Mẹo kiểm tra: xem 10 trận war gần nhất. Tướng nào hay chết cuối cùng là tướng
+đang gánh -> nâng trước. Tướng chết quá sớm là đang thiếu cấp hoặc thả sai.
+
+Quy tắc khi tướng đang nâng:
+  - Tướng đang nâng KHÔNG đánh được.
+  - Giữ ít nhất 1 tướng chủ lực ở nhà khi war, không để từ 4 tướng trở lên
+    nằm nâng cùng lúc.
+  - Xen kẽ: ví dụ Queen 93, King 87 -> nâng Queen lên 95 trước, rồi King lên 90.
+  - Cần tướng gấp cho trận quan trọng: dùng Book of Heroes để xong ngay.
+  - Hero Potion chỉ tăng sức cho tướng đang rảnh, không giúp tướng đang nâng.
+  - Trước CWL hoặc war liên tục: lên kế hoạch trước khoảng 1 tuần.
+  - KHÔNG nâng đều tất cả tướng; dồn cho 2 tướng chủ lực tới cap trước.
+  - Một tướng thấp hơn 1 cấp nhưng trang bị tốt có thể đánh hơn tướng max
+    trang bị yếu.
+
+
+================================================================================
+7. TRANG BỊ TƯỚNG (HERO EQUIPMENT) & ORE
+================================================================================
+Thứ tự gợi ý:
+  1. Fireball (Warden) cấp 18+
+  2. Frozen Arrow (Queen) cấp 15+
+  3. Rage Vial hoặc Giant Gauntlet (King)
+  4. Trang bị Warden theo lối đánh
+  5. Magic Mirror (Queen) & Eternal Tome (Warden): TrophyCoach khuyên nâng
+     song song với cấp tướng.
+
+Set trang bị tham khảo ở TH16 (CoC Base Guide):
+  Archer Queen   : Frozen Arrow (max)  (+ Giant Arrow / Magic Mirror tùy lối)
+  Royal Champion : Hog Rider Puppet (max) hoặc Rocket Spear
+  Grand Warden   : Healing Tome + Life Gem  (hoặc Eternal Tome / Fireball)
+  Barbarian King : Giant Gauntlet (max) + Spiky Ball
+  Dragon Duke    : Rocket Backpack (dùng trong Thrower Spam)
+
+Quy tắc dùng Ore:
+  - Chọn 2 tướng bạn dùng trong MỌI trận war, nâng 2 món tốt nhất của mỗi tướng.
+  - Không rải Ore cho tất cả trang bị.
+  - Không dùng Starry Ore cho trang bị dưới độ hiếm Epic.
+  - Builder Potion KHÔNG giúp nâng trang bị (trang bị dùng Ore).
+Nguồn Ore: nhiệm vụ event, Clan Games, Ore Pass, Gold Pass, trận Multiplayer,
+Raid Weekend.
+
+
+================================================================================
+8. PET
+================================================================================
+TH16: Unicorn & Phoenix -> Spirit Fox -> Angry Jelly / pet riêng của đội hình.
+TH17: Sneezy được đánh giá ưu tiên cao (khi tướng chết, Sneezy tự đánh
+      phòng thủ; từng bị nerf một phần nhưng vẫn đáng nâng).
+TH18: Greedy Raven (nếu bạn đánh Queen/Warden walk).
+Quy tắc:
+  - Pet thấp hơn tướng một bậc về độ ưu tiên.
+  - Nâng pet đi theo tướng chủ lực trước.
+  - Dark Elixir cho pet đã được giảm 25%.
+
+
+================================================================================
+9. LABORATORY: NGHIÊN CỨU QUÂN & PHÉP
+================================================================================
+Nguyên tắc:
+  - Nghiên cứu quân chính và phép dùng nhiều nhất trước.
+  - Không nghiên cứu quân bạn không bao giờ mang theo.
+  - Luôn gắn Lab Assistant (Helper Hut) vào nghiên cứu đang chạy.
+  - Dùng Book of Fighting/Spells cho nghiên cứu dài.
+
+Danh sách nghiên cứu theo đội hình (xem mục 13 để chọn):
+  Root Rider + Super Witch : Root Rider, Super Witch, Witch, Healer,
+                             Rage, Freeze, Earthquake, Bat, Log Launcher
+  Root Rider Spam (Duke)   : Root Rider, Super Barbarian, Ice Block,
+                             Overgrowth, Log Launcher
+  Super Dragon Zap         : Super Dragon, Balloon, Minion, Lightning,
+                             Earthquake, Rage, Freeze
+  RC Walk / Mass Dragons   : Dragon (TH17 có Dragon 12), Balloon, phép air
+  Hydra Spam               : Electro Dragon (TH17 có cấp 8), Dragon,
+                             Ice Block, Overgrowth, Revive, Siege Wagon
+  Thrower Spam             : Thrower, Healer, Earthquake, Totem,
+                             Log Launcher
+Phép/siege nên có sớm: Overgrowth, Fireball (trang bị), Revive (TH17),
+Log Launcher, Flame Flinger.
+Dark Elixir cho quân & phép đã được giảm 50%.
+
+
+================================================================================
+10. PHÒNG THỦ TH16 VÀ TH17
+================================================================================
+--- TH16 ---
+Ưu tiên: Multi-Gear Tower, Monolith -> Spell Towers, Eagle Artillery ->
+Scattershots, Inferno Towers, X-Bows -> còn lại.
+(Lưu ý: Eagle phải cấp 7 mới lên TH17 được.)
+
+--- TH17 ---
+INFERNO ARTILLERY (Town Hall weapon, từ TH + Eagle gộp lại):
+  - 4 viên đạn, mỗi viên tìm mục tiêu khác nhau, sát thương lan theo thời gian.
+  - Giữ lõi base gọn để đạn có mục tiêu đáng bắn.
+  - TH17 không có death bomb -> đừng bê nguyên lõi base TH16 sang.
+
+FIRESPITTER (phòng thủ đặc trưng TH17):
+  - Bắn rất nhanh, tầm 16 ô, đánh cả air và ground, sát thương lan.
+  - Góc bắn chỉ khoảng 160 độ và hơi thiếu chính xác.
+  - Đặt nơi đối thủ BẮT BUỘC phải đi qua, không đặt ở góc bỏ không.
+  - Lúc ra mắt: cấp 1 = 22,5 triệu vàng/15 ngày; cấp 2 = 23 triệu/16 ngày;
+    max xong còn 2 cấp Supercharge (cấp 1: 12 triệu/6 ngày). Kiểm tra lại
+    trong game vì có thể đã giảm.
+
+GIGA BOMB (bẫy mới):
+  - Vùng nổ lớn (4,5 ô), đẩy lùi mạnh, có 3 cấp.
+  - Đặt nơi dễ hình thành funnel của đối thủ.
+  - Lúc ra mắt: cấp 1 = 5 triệu vàng, cấp 2 = 10 triệu/8 ngày,
+    cấp 3 = 15 triệu/10 ngày.
+
+CRAFTED DEFENSE ở TH17: nâng máu cả 3 module, rồi chỉ Hero Hunter. Dừng ở đó.
+
+Phòng thủ khác: lan diện rộng & phòng không trước, phòng thủ lõi sau, phòng
+thủ điểm ở rìa cuối cùng. Hòa nhau thì xem log war: cái nào hay bị phá sớm
+thì nâng trước.
+
+
+================================================================================
+11. TƯỜNG (WALLS)
+================================================================================
+- Làm cuối cùng. Không nâng tường trước công trình tấn công.
+- Dùng làm chỗ xả vàng/elixir khi kho gần đầy mà thợ đều bận.
+- Có thể chọn nhiều đoạn tường cùng cấp để nâng một lần (thêm 1 hoặc 10 đoạn).
+- Wall Ring: theo ghi chú cập nhật tháng 8/2026 không còn cần thợ rảnh,
+  có là dùng ngay.
+- Bảo vệ công trình lõi (Inferno Artillery/Eagle, Monolith, Multi-Gear) bằng
+  lớp tường trong trước, tường ngoài sau.
+- Mẹo: không giữ thợ riêng cho tường; trước mỗi lần bắt đầu nâng công trình
+  khác, đổ tài nguyên thừa vào tường.
+
+
+================================================================================
+12. TÀI NGUYÊN, DARK ELIXIR & VẬT PHẨM PHÉP
+================================================================================
+Book of Building / Hammer of Building:
+  -> Town Hall, Monolith, Spell Tower, Eagle Artillery, Firespitter,
+     Inferno Artillery (nâng cấp >= 12 ngày).
+Book of Heroes / Hammer of Heroes:
+  -> Tướng chủ lực, hoặc khi cần tướng gấp cho CWL/war.
+Book of Fighting / Spells:
+  -> Nghiên cứu dài của quân chính.
+Builder Potion / Research Potion:
+  -> Dùng khi event giảm giá hoặc khi nhiều thợ cùng chạy nâng cấp dài.
+Dark Elixir:
+  - Tướng vẫn ăn nhiều DE nhất và luôn ưu tiên.
+  - Quân Dark để cuối, trừ khi là quân chính của đội hình.
+  - Kho DE hay chạm trần -> bắt đầu nâng tướng hoặc pet.
+Event Hammer Jam (nếu có): giảm mạnh chi phí và thời gian -> dồn nâng cấp
+đắt nhất vào lúc này.
+
+
+================================================================================
+13. ĐỘI HÌNH TẤN CÔNG CHI TIẾT
+================================================================================
+Lưu ý chung:
+  - Số lượng quân là khoảng tham khảo từ các bài hướng dẫn; chỉnh cho vừa
+    sức chứa trại lính của bạn.
+  - Để có bản chuẩn, lấy "army link" trong bài gốc (Blueprint CoC, CocBaseDrop)
+    rồi copy thẳng vào game.
+  - Các bài viết hầu như không ghi pet; pet gợi ý ở cuối mỗi đội hình là
+    theo phần 8, chỉnh theo pet bạn có.
+
+--------------------------------------------------------------------------------
+13.1 ROOT RIDER + SUPER WITCH  (ground, mạnh nhất cho war ở TH16)
+--------------------------------------------------------------------------------
+Hợp với: base chia nhiều ngăn tường. Root Rider đi xuyên tường.
+Quân:
+  - Root Rider ............ 6-8
+  - Super Witch ........... 4-5
+  - Witch ................. 2
+  - Super Barbarian ....... 4 (lấp chỗ trống, dọn rìa)
+  - Healer ................ 4 (cho Queen Walk)
+Phép:
+  - Rage x2, Freeze x3, Earthquake x2, Bat Spell x1
+Siege: Log Launcher hoặc Stone Slammer
+Tướng & trang bị:
+  - Archer Queen: Frozen Arrow (max)
+  - Royal Champion: Hog Rider Puppet (max) hoặc Rocket Spear
+  - Grand Warden: Healing Tome + Life Gem (hoặc Eternal Tome)
+  - Barbarian King: Giant Gauntlet (max) + Spiky Ball
+Pet gợi ý: Unicorn/Healer cho Queen, Phoenix cho Warden, Spirit Fox.
+Cách đánh:
+  1. Thả Queen + 4 Healer về phía Eagle Artillery hoặc Monolith, cho Queen
+     đi sâu trước khi thả quân chính.
+  2. Thả 2 Earthquake mở tường ngăn đầu tiên.
+  3. Thả Log Launcher theo đường chính để hứng sát thương Inferno và Spell Tower.
+  4. Thả Root Rider rải rộng để đánh phòng thủ xuyên tường.
+  5. Thả Super Witch ngay sau Root Rider.
+  6. Thả Royal Champion ở cánh/phía sau để dọn phòng thủ Root Rider bỏ qua.
+  7. Bật Eternal Tome của Warden khi Eagle bắn hoặc Spell Tower đóng băng lõi.
+  8. Freeze Monolith nếu nó bắn vào cụm Super Witch.
+
+--------------------------------------------------------------------------------
+13.2 ROOT RIDER SPAM (DRAGON DUKE MỞ)  (ground, meta sau update 6/2026)
+--------------------------------------------------------------------------------
+Quân: Root Rider (chủ lực), vài Super Barbarian, quân hỗ trợ.
+Phép: Ice Block (bảo vệ Dragon Duke), Overgrowth, phép còn lại tùy chọn.
+Siege: Log Launcher
+Tướng: Dragon Duke, Royal Champion, Archer Queen (tùy chọn).
+Cách đánh:
+  1. Mở funnel thứ nhất bằng Dragon Duke, che bằng Ice Block.
+  2. Thả vài Super Barbarian ở phía đối diện dọn công trình ngoài -> funnel 2.
+  3. Hai bên sạch thì thả Root Rider + quân hỗ trợ vào lõi.
+  4. Theo sau là Log Launcher phá tường, mở ngăn.
+  5. Thả Overgrowth vào khu nguy hiểm khi vào lõi.
+  6. Royal Champion đánh phòng thủ quan trọng và dọn dẹp; giữ Duke sống
+     hoặc dùng Revive.
+
+--------------------------------------------------------------------------------
+13.3 RC WALK / RC CHARGE MASS DRAGONS  (air, dễ nhất, ổn định nhất)
+--------------------------------------------------------------------------------
+Blueprint CoC đánh giá đây là đội hình ổn định nhất ở TH16 hiện tại, và có thể
+3 sao cả TH17. Bài gốc không ghi số lượng bằng chữ -> lấy army link.
+Khung đội hình:
+  - Mass Dragon làm chủ lực, Royal Champion đi trước dọn một bên (walk/charge).
+  - Phép: Lightning/Earthquake để hạ Air Defense, Rage, Freeze.
+Lab: dồn Dragon (TH17 có Dragon cấp 12), Balloon, phép air.
+Cách đánh (khung chung):
+  1. RC (có thể kèm Healer) đi một cạnh dọn phòng thủ, tạo funnel.
+  2. Hạ 1-2 Air Defense phía đánh bằng Lightning/Earthquake.
+  3. Thả Dragon rải đều từ phía đã dọn.
+  4. Rage khi Dragon vào lõi, Freeze Scattershot/Inferno.
+
+--------------------------------------------------------------------------------
+13.4 SUPER DRAGON ZAP  (air)
+--------------------------------------------------------------------------------
+Quân:
+  - Super Dragon .......... 6-7
+  - Balloon ............... 6-8
+  - Minion ................ 8
+Phép:
+  - Lightning x6-8, Earthquake x2, Rage x1, Freeze x2
+Cách đánh:
+  1. Dùng 4-5 Lightning + 1 Earthquake hạ 1 Air Defense phía đánh.
+  2. Lightning còn lại + 1 Earthquake hạ Air Defense thứ hai.
+  3. Rải Super Dragon trên toàn mặt trận để không chung lửa Air Defense.
+  4. Thả Balloon sau khi Super Dragon tới giữa base, nhắm Air Defense còn lại.
+  5. Rage khi Super Dragon hội tụ vào cụm Eagle Artillery.
+  6. Freeze Scattershot đang nhắm cụm quân chính.
+
+--------------------------------------------------------------------------------
+13.5 HYDRA SPAM  (air, hợp base thoáng/dàn trải)
+--------------------------------------------------------------------------------
+Quân: Electro Dragon (Hydra) + Dragon.
+Phép: Ice Block, Overgrowth, Revive, phép còn lại tùy chọn.
+Siege: Siege Wagon
+Tướng: Dragon Duke + các tướng khác (dùng kỹ năng đúng lúc).
+Cách đánh:
+  1. Mở bằng Dragon Duke vào phòng thủ giá trị, Ice Block giúp Duke sống.
+  2. Xử lý cẩn thận Guardian của đối phương nếu ở gần (TH18).
+  3. Funnel 1 xong thì thả Dragon từ phía đối diện về lõi.
+  4. Giữ Hydra đi thành cụm, dẫn qua khu giá trị nhất.
+  5. Thả Siege Wagon mở ngăn.
+  6. Overgrowth khi Dragon bị bắn nặng; Revive nếu Duke chết.
+
+--------------------------------------------------------------------------------
+13.6 THROWER SPAM  (ground, Thrower mở ở Barracks 18 - TH16)
+--------------------------------------------------------------------------------
+Quân: Thrower + Healer + quân hỗ trợ.
+Phép: Earthquake x3, Totem, phép còn lại tùy chọn.
+Siege: Log Launcher
+Tướng: Archer Queen (Giant Arrow), Dragon Duke (Rocket Backpack),
+       Royal Champion.
+Cách đánh:
+  1. Bắn Giant Arrow theo đường thẳng qua khu Clan Castle và phòng thủ gần đó.
+  2. Dùng Rocket Backpack của Duke mở một khu khác.
+  3. Thả 3 Earthquake gần Clan Castle và phòng thủ.
+  4. Queen và Duke tạo funnel từ hai phía đối nhau.
+  5. Thả Thrower + hỗ trợ sau funnel, rồi Log Launcher đi xuyên các ngăn.
+  6. Dùng Totem khi quân vào lõi.
+  7. Giữ Thrower đi cùng Healer; dùng phép còn lại và RC ở chỗ có giá trị.
+
+--------------------------------------------------------------------------------
+13.7 PRECISION QUEEN CHARGE + DỌN BẰNG GROUND  (cần tay nghề)
+--------------------------------------------------------------------------------
+Quân: Healer x4 cho Queen + quân chính Super Witch.
+Tướng:
+  - Archer Queen: Frozen Arrow
+  - Barbarian King + Royal Champion: phía đối diện Queen
+  - Grand Warden: đi theo đường của Queen
+Cách đánh:
+  1. Queen + Healer đi vào dọn phía Eagle Artillery (5-7 phòng thủ chính).
+  2. King và RC đẩy vào từ góc đối diện.
+  3. Warden đi cùng King trong lúc nạp Eternal Tome.
+  4. Thả quân Super Witch chính khi Queen đã vào trong base.
+  5. Canh Eternal Tome đúng lúc Eagle kích hoạt (nếu Queen chưa phá) hoặc khi
+     Inferno khóa mục tiêu.
+
+--------------------------------------------------------------------------------
+13.8 FIREBALL SUPER YETI  (ground)
+--------------------------------------------------------------------------------
+CocBaseDrop đánh giá đây là chiến thuật TH16 ổn định nhất sau update tháng
+3/2026. Lõi là Fireball (trang bị Warden) cấp cao để phá cụm phòng thủ, sau đó
+Super Yeti càn vào. Lấy army link trong bài gốc để có bản đầy đủ.
+
+
+================================================================================
+14. CHỌN ĐỘI HÌNH NÀO? DỒN LAB RA SAO?
+================================================================================
+Bạn muốn...                        -> Nên chọn
+---------------------------------------------------------------
+Dễ, ít thao tác, ổn định           -> RC Walk / Mass Dragons (13.3)
+Mạnh nhất cho war, base nhiều ngăn -> Root Rider + Super Witch (13.1)
+Theo meta mới, có Dragon Duke      -> Root Rider Spam (13.2)
+Base thoáng, dàn trải              -> Hydra (13.5)
+Thích phá Air Defense bằng phép    -> Super Dragon Zap (13.4)
+
+Gợi ý cho người mới lên TH17:
+  - Đội hình chính : 1 air (Dragons) HOẶC 1 ground (Root Rider).
+  - Đội hình phụ   : chỉ nâng sau khi đội hình chính đã max Lab.
+  - Phép dùng chung : Rage, Freeze, Earthquake, Overgrowth, Revive -> nâng sớm
+    vì dùng được cho hầu hết đội hình.
+
+
+================================================================================
+15. MẸO ĐÁNH WAR / CWL
+================================================================================
+- CWL mỗi war chỉ có 1 lượt đánh -> chỉ mang đội hình đáng tin nhất.
+- Xem lại replay của mình (khoảng 90 giây mỗi replay) là cách cải thiện kỹ
+  năng rẻ nhất.
+- Báo với clan trước khi lên TH17 để họ sắp xếp đội hình war; một TH17 bị
+  rush là gánh nặng trong war.
+- Trước CWL: đảm bảo tướng chủ lực không nằm nâng; dùng Book of Heroes nếu cần.
+- Hero Potion vào ngày CWL để tăng sức cho tướng đang rảnh.
+
+
+================================================================================
+16. KHI NÀO LÊN TH18
+================================================================================
+- Chỉ lên khi tướng và quân chính đã gần max TH17.
+- TH18 nâng cap mới, thêm Guardians (Smasher và Longshot, mỗi lần chỉ một
+  con phòng thủ), gộp 2 Wizard Tower thành Super Wizard Tower.
+- Những thứ đó không làm bạn đánh mạnh hơn; tướng bị rush sẽ càng tụt so với
+  cap mới. -> Xong tấn công rồi mới lên.
+
+
+================================================================================
+17. BẢNG CHECKLIST TỔNG
+================================================================================
+TRƯỚC KHI LÊN TH17
+  [ ] Laboratory max TH16
+  [ ] 4 Army Camps max
+  [ ] Clan Castle max
+  [ ] Hero Hall 10
+  [ ] Blacksmith max
+  [ ] Pet House max
+  [ ] Queen / Warden / RC gần max
+  [ ] Fireball 18+ / Frozen Arrow 15+
+  [ ] Unicorn, Phoenix, Spirit Fox
+  [ ] Monolith, Spell Towers, Multi-Gear
+  [ ] EAGLE ARTILLERY CẤP 7 (bắt buộc)
+  [ ] Đội hình chính max Lab
+  [ ] Có Book of Building cho Town Hall
+  [ ] Đổ hết tài nguyên thừa vào tường
+
+TUẦN ĐẦU TH17
+  [ ] Laboratory
+  [ ] Tướng chủ lực
+  [ ] Clan Castle
+  [ ] Army Camp
+  [ ] Hero Hall 11
+  [ ] Đặt Firespitter
+  [ ] Đặt Giga Bomb
+  [ ] Gắn Apprentice + Lab Assistant
+
+THÁNG 1-2
+  [ ] Army Camps còn lại
+  [ ] Spell Factory + Dark Spell Factory
+  [ ] Grand Warden
+  [ ] Royal Champion
+  [ ] Sneezy / pet tướng chính
+  [ ] Crafted Defense: máu x3 + Hero Hunter
+  [ ] Inferno Artillery
+  [ ] Firespitter cấp 2
+
+THÁNG 3-6
+  [ ] Quân chính max Lab TH17
+  [ ] Dragon Duke / King / Minion Prince
+  [ ] Scattershot, Inferno, Air Defense
+  [ ] Wizard Tower, Bomber Tower
+  [ ] Multi-Archer, Ricochet
+  [ ] Bẫy (Giga Bomb, Air Seeking Mine...)
+
+CUỐI TH17
+  [ ] Phòng thủ rìa
+  [ ] Tường
+  [ ] Cân nhắc TH18
+
+
+================================================================================
+18. NGUỒN THAM KHẢO
+================================================================================
+- Blueprint CoC - TH16 Upgrade Guide 2026
+  https://blueprintcoc.com/blogs/town-hall-16/best-th16-upgrade-guide
+- Blueprint CoC - Top 3 TH16 Armies (sau update 6/2026)
+  https://blueprintcoc.com/blogs/town-hall-16/top-3-th16-army-links
+- Blueprint CoC - Best TH16 Attack Strategies 2026
+  https://blueprintcoc.com/blogs/town-hall-16
+- CocBaseDrop - TH16 Upgrade Priority 2026
+  https://cocbasedrop.com/blog/coc-upgrade-priority-th16-what-to-upgrade-first-2026
+- CocBaseDrop - TH17 Upgrade Priority 2026
+  https://cocbasedrop.com/blog/coc-upgrade-priority-th17-what-to-upgrade-first-2026
+- CocBaseDrop - Crafted Defense Priority 2026
+  https://cocbasedrop.com/blog/crafted-defense-upgrade-priority-every-town-hall-2026
+- CocBaseDrop - Best TH16 Attack 2026 (Fireball Yeti)
+  https://cocbasedrop.com/blog/best-th16-attack-strategy-2026-fireball-yeti-root-riders
+- TrophyCoach - Hero Upgrade Order 2026
+  https://trophycoach.com/clash-of-clans/guides/hero-upgrade-order
+- CoC Base Guide - TH16 Attack Guide 2026
+  https://coc-base-guide.vercel.app/articles/th16-attack-guide-2026
+- LDShop - Hero & Pets Priority 2026
+  https://www.ldshop.gg/blog/clash-of-clans/hero-pets-upgrade-priority-guide.html
+- Sportskeeda - Town Hall 17 features
+  https://www.sportskeeda.com/mobile-games/clash-clans-town-hall-17-all-th17-features-explained
+- GamingOnPhone - Town Hall 17 Guide
+  https://gamingonphone.com/guides/clash-of-clans-town-hall-17-guide-upgrade-priorities-best-bases-attack-strategies-tips
+- Supercell - The Town Hall 17 Update Is Here
+  https://supercell.com/en/games/clashofclans/blog/game-updates/the-town-hall-17-update-is-here-2/
+================================================================================

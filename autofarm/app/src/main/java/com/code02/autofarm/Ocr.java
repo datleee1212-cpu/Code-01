@@ -1,8 +1,11 @@
 package com.code02.autofarm;
 
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 
+import com.code02.autofarm.core.Box;
+import com.code02.autofarm.core.Img;
+import com.code02.autofarm.core.Parse;
+import com.code02.autofarm.core.TextReader;
 import com.google.android.gms.tasks.Tasks;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
@@ -12,44 +15,44 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.concurrent.TimeUnit;
 
-/** Đọc số trên màn hình bằng ML Kit (chạy offline trên máy). Chỉ gọi từ luồng nền. */
-final class Ocr {
+/** Đọc chữ trên màn hình bằng ML Kit (chạy offline trên máy). Chỉ gọi từ luồng nền. */
+final class Ocr implements TextReader {
 
-    private static TextRecognizer recognizer;
+    private TextRecognizer recognizer;
 
-    private Ocr() {
-    }
-
-    private static synchronized TextRecognizer get() {
+    private synchronized TextRecognizer get() {
         if (recognizer == null) {
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
         }
         return recognizer;
     }
 
-    /** Đọc số nguyên trong vùng r của ảnh màn hình. Trả về -1 nếu không đọc được. */
-    static long readNumber(Bitmap screen, Rect r) {
-        Rect c = new Rect(r);
-        if (!c.intersect(0, 0, screen.getWidth(), screen.getHeight()) || c.width() < 4 || c.height() < 4) {
-            return -1;
-        }
-        Bitmap crop = Bitmap.createBitmap(screen, c.left, c.top, c.width(), c.height());
-        int scale = c.height() < 60 ? 3 : 2;
-        Bitmap up = Bitmap.createScaledBitmap(crop, c.width() * scale, c.height() * scale, true);
-        long v = recognize(up);
-        if (v < 0) v = recognize(binarize(up));
-        return v;
+    @Override
+    public String read(Img img, Box r, boolean digits) {
+        if (img == null || r == null) return null;
+        int l = Math.max(0, r.l);
+        int t = Math.max(0, r.t);
+        int w = Math.min(img.w, r.r) - l;
+        int h = Math.min(img.h, r.b) - t;
+        if (w < 4 || h < 4) return null;
+        Bitmap crop = Templates.toBitmap(img.crop(l, t, w, h));
+        int scale = h < 60 ? 3 : 2;
+        Bitmap up = Bitmap.createScaledBitmap(crop, w * scale, h * scale, true);
+        String s = recognize(up);
+        if (digits && Parse.number(s) < 0) s = recognize(binarize(up));
+        return s;
     }
 
-    private static long recognize(Bitmap b) {
+    private String recognize(Bitmap b) {
         try {
             Text t = Tasks.await(get().process(InputImage.fromBitmap(b, 0)), 5, TimeUnit.SECONDS);
-            return parse(t.getText());
+            String s = t.getText();
+            return s == null || s.trim().isEmpty() ? null : s;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return -1;
+            return null;
         } catch (Exception e) {
-            return -1;
+            return null;
         }
     }
 
@@ -67,39 +70,5 @@ final class Ocr {
         Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         out.setPixels(px, 0, w, 0, 0, w, h);
         return out;
-    }
-
-    static long parse(String s) {
-        if (s == null) return -1;
-        StringBuilder d = new StringBuilder();
-        for (char ch : s.toCharArray()) {
-            switch (ch) {
-                case 'O': case 'o': case 'D': case 'Q':
-                    d.append('0');
-                    break;
-                case 'I': case 'l': case 'i': case '|': case '!':
-                    d.append('1');
-                    break;
-                case 'Z': case 'z':
-                    d.append('2');
-                    break;
-                case 'S': case 's':
-                    d.append('5');
-                    break;
-                case 'G': case 'b':
-                    d.append('6');
-                    break;
-                case 'B':
-                    d.append('8');
-                    break;
-                case 'g': case 'q':
-                    d.append('9');
-                    break;
-                default:
-                    if (ch >= '0' && ch <= '9') d.append(ch);
-            }
-        }
-        if (d.length() == 0 || d.length() > 10) return -1;
-        return Long.parseLong(d.toString());
     }
 }
