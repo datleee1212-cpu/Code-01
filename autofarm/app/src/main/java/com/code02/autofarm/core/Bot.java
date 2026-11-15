@@ -16,6 +16,7 @@ public final class Bot {
     private final Store store;
     private final Settings cfg;
     private final Memory memory;
+    private final Learner learner;
     private final Map<String, Vision.Tpl> tplCache = new HashMap<>();
 
     /** Thống kê để báo cáo / kiểm thử. */
@@ -31,6 +32,12 @@ public final class Bot {
         public int fullWaits;
         public final List<String> upgradeLog = new ArrayList<>();
         public final List<Long> attackedStorable = new ArrayList<>();
+        /** Ngưỡng chọn làng dùng ở lần tìm trận gần nhất (-1 = chưa tìm). */
+        public long threshold = -1;
+        /** Số lần ngưỡng tự học khác cài đặt người dùng. */
+        public int tunedSearches;
+        /** Số làng đã xem (đọc được tài nguyên). */
+        public int scouted;
     }
 
     public final Stats stats = new Stats();
@@ -48,10 +55,28 @@ public final class Bot {
         this.store = store;
         this.cfg = cfg;
         this.memory = memory;
+        this.learner = new Learner(memory);
+        learner.note(cfg.minLoot, cfg.stepDelay, cfg.maxSkips, cfg.matchPct);
     }
 
     public Memory memory() {
         return memory;
+    }
+
+    /** Phần tự học (dùng chung bộ nhớ với bot). */
+    public Learner learner() {
+        return learner;
+    }
+
+    /** Độ trễ sau chạm: đã học (khi bật tự chỉnh) hoặc đúng cài đặt. */
+    private long step() {
+        return cfg.autoTune ? learner.stepDelay(cfg.stepDelay) : cfg.stepDelay;
+    }
+
+    /** Co giãn một lần chờ cố định theo độ trễ đã học, không thấp hơn floorMs. */
+    private long scaled(long ms, long floorMs) {
+        if (!cfg.autoTune) return ms;
+        return Math.max(Math.min(ms, floorMs), Math.min(ms * 2, Math.round(ms * learner.stepFactor(cfg.stepDelay))));
     }
 
     // ================================================================ tiện ích
@@ -98,11 +123,15 @@ public final class Bot {
         Vision.Tpl t = tpl(key);
         if (t == null) return null;
         int[] c = store.point(key);
+        Vision.Match found;
         if (!Keys.fullScope(key) && c != null) {
             int m = Math.max(t.side * 2, Math.min(f.width(), f.height()) / 8);
-            return Vision.find(f, t, c[0] - m, c[1] - m, c[0] + m, c[1] + m, thr());
+            found = Vision.find(f, t, c[0] - m, c[1] - m, c[0] + m, c[1] + m, thr());
+        } else {
+            found = Vision.find(f, t, 0, 0, f.width(), f.height(), thr());
         }
-        return Vision.find(f, t, 0, 0, f.width(), f.height(), thr());
+        if (found != null) learner.matched(key, found.score);
+        return found;
     }
 
     private boolean handlePopups(Vision.Frame f) throws InterruptedException {
@@ -129,12 +158,20 @@ public final class Bot {
 
     private Vision.Match waitFor(String key, long timeoutMs) throws InterruptedException {
         long end = dev.now() + timeoutMs;
+        int frames = 0;
         while (true) {
             Vision.Frame f = frame();
             if (f == null) return null;
+            frames++;
             Vision.Match m = find(f, key);
-            if (m != null) return m;
-            if (dev.now() > end) return null;
+            if (m != null) {
+                learner.waited(key, frames, true);
+                return m;
+            }
+            if (dev.now() > end) {
+                learner.waited(key, frames, false);
+                return null;
+            }
             if (!handlePopups(f)) sleep(500);
         }
     }
@@ -289,7 +326,23 @@ public final class Bot {
         }
     }
 
+    // Làng đã chọn ở lần tìm trận gần nhất (cho phần tự học).
+    private long pickValue = -1;
+    private long pickGold = -1;
+    private long pickElixir = -1;
+    private int pickLooks = 1;
+
+    private void picked(long value, long gold, long elixir, int looks) {
+        pickValue = value;
+        pickGold = gold;
+        pickElixir = elixir;
+        pickLooks = Math.max(1, looks);
+        stats.attackedStorable.add(value);
+    }
+
     private boolean chooseBase(String tag) throws InterruptedException {
+        pickValue = pickGold = pickElixir = -1;
+        pickLooks = 1;
         if (!visual(Keys.NEXT)) {
             for (int s = cfg.searchWait; s > 0; s--) {
                 status(tag + "đang tìm trận … " + s);
@@ -297,6 +350,12 @@ public final class Bot {
             }
             return true;
         }
+        // Ngưỡng: tự học (khi bật và đủ dữ liệu) hoặc đúng cài đặt.
+        long minLoot = cfg.autoTune ? learner.threshold(cfg.minLoot, cfg.maxSkips) : cfg.minLoot;
+        stats.threshold = minLoot;
+        if (minLoot != cfg.minLoot) stats.tunedSearches++;
+        String thrText = minLoot != cfg.minLoot ? " (ngưỡng tự học " + minLoot + ")" : "";
+        long lastNext = -1;
         for (int skip = 0; ; skip++) {
             status(tag + "đang tìm trận…");
             Vision.Match next = waitFor(Keys.NEXT, 30000);
@@ -304,36 +363,44 @@ public final class Bot {
                 status(tag + "không thấy nút Tiếp theo");
                 return false;
             }
-            if (cfg.minLoot <= 0) {
-                stats.attackedStorable.add(-1L);
+            // Không lọc làng và không học → đánh luôn như trước.
+            if (cfg.minLoot <= 0 && !cfg.autoTune) {
+                picked(-1, -1, -1, skip + 1);
                 return true;
             }
-            sleep(1200);
+            sleep(scaled(1200, 800));
             Vision.Frame f = frame();
             long g = f == null ? -1 : readNumber(f.img, Keys.LOOT_GOLD);
             long e = f == null ? -1 : readNumber(f.img, Keys.LOOT_ELIXIR);
             if (g < 0 && e < 0) {
                 status(tag + "không đọc được tài nguyên → đánh luôn");
-                stats.attackedStorable.add(-1L);
+                picked(-1, -1, -1, skip + 1);
                 return true;
             }
-            long useful = storable(1, g) + storable(2, e);
-            if (useful >= cfg.minLoot) {
-                status(tag + "làng ngon: dùng được " + useful + " → đánh");
-                stats.attackedStorable.add(useful);
+            long useG = storable(1, g);
+            long useE = storable(2, e);
+            long useful = useG + useE;
+            stats.scouted++;
+            learner.scouted(g, e, useful);
+            if (lastNext >= 0) learner.searchGap(dev.now() - lastNext);
+            if (useful >= minLoot) {
+                status(tag + "làng ngon: dùng được " + useful + thrText + " → đánh");
+                picked(useful, useG, useE, skip + 1);
                 return true;
             }
             if (skip >= cfg.maxSkips) {
                 status(tag + "đã bỏ qua " + skip + " làng → đánh luôn");
-                stats.attackedStorable.add(useful);
+                picked(useful, useG, useE, skip + 1);
                 return true;
             }
-            status(tag + "làng nghèo (dùng được " + useful + ") → Tiếp theo");
+            status(tag + "làng nghèo (dùng được " + useful + thrText + ") → Tiếp theo");
             stats.skippedBases++;
+            learner.skipped();
             Vision.Match m = f == null ? null : find(f, Keys.NEXT);
             if (m == null) m = next;
+            lastNext = dev.now();
             dev.tap(m.x, m.y);
-            sleep(1500);
+            sleep(scaled(1500, 500));
         }
     }
 
@@ -368,8 +435,8 @@ public final class Bot {
                 status(tag + "đang đánh … " + s);
                 sleep(1000);
             }
-            tapPoint(Keys.END_BATTLE, cfg.stepDelay);
-            tapPoint(Keys.SURRENDER_OK, cfg.stepDelay);
+            tapPoint(Keys.END_BATTLE, step());
+            tapPoint(Keys.SURRENDER_OK, step());
             tapPoint(Keys.RETURN_HOME, 0);
             for (int s = cfg.homeWait; s > 0; s--) {
                 status(tag + "về làng … " + s);
@@ -395,11 +462,11 @@ public final class Bot {
         }
         if (!ended) {
             status(tag + "hết giờ → kết thúc trận");
-            tapTarget(Keys.END_BATTLE, 3000, cfg.stepDelay);
-            tapTarget(Keys.SURRENDER_OK, 3000, cfg.stepDelay);
+            tapTarget(Keys.END_BATTLE, 3000, step());
+            tapTarget(Keys.SURRENDER_OK, 3000, step());
         }
         status(tag + "về làng");
-        tapTarget(Keys.RETURN_HOME, 20000, cfg.stepDelay);
+        tapTarget(Keys.RETURN_HOME, 20000, step());
     }
 
     // ================================================================ nâng cấp theo lộ trình
@@ -564,8 +631,57 @@ public final class Bot {
 
     // ================================================================ vòng chính
 
+    // Đo tài nguyên thật sự vào kho sau trận (phần tự học).
+    private long[] ownBefore;
+    private boolean pendingGain;
+    private long battleEndAt = -1;
+
+    /** Sau trận: đọc lại kho và báo cho phần tự học phần đã vào kho. */
+    private void measureGain() throws InterruptedException {
+        if (battleEndAt >= 0) {
+            learner.addFarmTime(Math.min(60_000, dev.now() - battleEndAt)); // thời gian quay về làng
+            battleEndAt = -1;
+        }
+        if (!pendingGain) return;
+        pendingGain = false;
+        long[] before = ownBefore;
+        ownBefore = null;
+        if (before == null || store.region(Keys.OWN_GOLD) == null && store.region(Keys.OWN_ELIXIR) == null) return;
+        Vision.Frame f = frame();
+        if (f == null) return;
+        long[] gain = {-1, -1, -1, -1};
+        String[] keys = {null, Keys.OWN_GOLD, Keys.OWN_ELIXIR, Keys.OWN_DARK};
+        for (int r = 1; r <= 3; r++) {
+            if (before[r] < 0 || store.region(keys[r]) == null) continue;
+            long now = readNumber(f.img, keys[r]);
+            if (now >= 0) gain[r] = now - before[r];
+        }
+        learner.gained(gain[1], gain[2], gain[3]);
+    }
+
+    /** Thỉnh thoảng báo những gì đã học. */
+    private void learnStatus(String tag, int cycle) throws InterruptedException {
+        if (!cfg.autoTune || cycle % 10 != 0) return;
+        StringBuilder sb = new StringBuilder(tag).append("tự học: ");
+        sb.append(learner.ready() ? "ngưỡng " + learner.threshold(cfg.minLoot, cfg.maxSkips) : "đang thu thập dữ liệu");
+        sb.append(", trễ ").append(step()).append(" ms");
+        List<String> bad = learner.reteach(cfg.matchPct);
+        if (!bad.isEmpty()) sb.append(" • nên dạy lại ").append(String.join(", ", bad));
+        status(sb.toString());
+        if (!bad.isEmpty()) sleep(1000);
+    }
+
     /** Chạy vòng farm cho tới khi đủ số vòng hoặc bị dừng (InterruptedException). */
     public void run() throws InterruptedException {
+        try {
+            farm();
+        } finally {
+            learner.save();
+        }
+    }
+
+    private void farm() throws InterruptedException {
+        learner.note(cfg.minLoot, cfg.stepDelay, cfg.maxSkips, cfg.matchPct);
         int lost = 0;
         int cycle = 0;
         while (cfg.cycles == 0 || cycle < cfg.cycles) {
@@ -574,6 +690,8 @@ public final class Bot {
 
             if (!ensureHome()) {
                 lost++;
+                pendingGain = false;
+                battleEndAt = -1;
                 status(tag + "không tìm thấy làng chính (" + lost + "/3)");
                 if (lost >= 3) {
                     status("Dừng: 3 lần không về được làng. Kiểm tra game / dạy thêm thông báo");
@@ -582,6 +700,10 @@ public final class Bot {
                 continue;
             }
             lost = 0;
+            measureGain();
+            learner.save();
+            learnStatus(tag, cycle);
+            long cycleStart = dev.now();
 
             status(tag + "thu tài nguyên");
             collect();
@@ -590,11 +712,15 @@ public final class Bot {
                 readOwn(f);
             }
 
+            long upgradeMs = 0;
             boolean nearFull = cfg.wallPct > 0
                     && (fill(1) >= cfg.wallPct / 100f || fill(2) >= cfg.wallPct / 100f);
             if (cfg.autoUpgrade && ((cycle - 1) % cfg.upgradeEvery == 0 || nearFull)) {
+                long u0 = dev.now();
                 upgradeSession();
-                if (!ensureHome()) continue;
+                boolean home = ensureHome();
+                upgradeMs = dev.now() - u0;
+                if (!home) continue;
             }
 
             if (storagesFull()) {
@@ -611,12 +737,18 @@ public final class Bot {
             train();
 
             status(tag + "tìm trận " + ownText());
-            if (!tapTarget(Keys.ATTACK, 5000, cfg.stepDelay)) continue;
+            ownBefore = own.clone();
+            if (!tapTarget(Keys.ATTACK, 5000, step())) continue;
             if (!tapTarget(Keys.FIND_MATCH, 8000, 0)) continue;
             if (!chooseBase(tag)) continue;
 
             deploy(tag);
+            long b0 = dev.now();
             battle(tag);
+            long now = dev.now();
+            learner.attacked(pickValue, pickGold, pickElixir, pickLooks, now - cycleStart - upgradeMs, now - b0);
+            pendingGain = true;
+            battleEndAt = now;
             stats.attacks++;
             stats.cycles++;
         }
@@ -708,6 +840,8 @@ public final class Bot {
             }
         }
         sb.append("\nLộ trình: ").append(Roadmap.describe(cfg.roadmap));
+        learner.note(cfg.minLoot, cfg.stepDelay, cfg.maxSkips, cfg.matchPct);
+        sb.append("\n\n").append(learner.describe());
         return sb.toString();
     }
 }
