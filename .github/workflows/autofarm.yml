@@ -1,0 +1,48 @@
+name: Build AutoFarm APK
+
+on:
+  push:
+    paths:
+      - "autofarm/**"
+      - ".github/workflows/autofarm.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: autofarm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../AutoFarm.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AutoFarm-apk
+          path: AutoFarm.apk
+
+      - name: Publish to release "autofarm-latest"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: autofarm-latest
+          name: AutoFarm (bản mới nhất)
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          files: AutoFarm.apk
+          body: |
+            Tải AutoFarm.apk về máy tính bảng Android rồi mở để cài.
+            Xem hướng dẫn trong autofarm/README.md.
