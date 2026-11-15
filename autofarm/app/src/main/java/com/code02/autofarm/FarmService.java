@@ -39,7 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Dịch vụ Trợ năng: bảng nổi điều khiển, chế độ dạy vị trí / hình mẫu,
- * và vòng farm có đọc màn hình (Android 11+) để xử lý tình huống.
+ * và hai kênh chạy có đọc màn hình (Android 11+):
+ * kênh Farm (▶: đánh + thu + nâng cấp) và kênh Lộ trình (🛠: chỉ nâng cấp theo lộ trình, chạy định kỳ).
+ * Mỗi lúc chỉ chạy một kênh; ■ dừng kênh đang chạy.
  */
 public class FarmService extends AccessibilityService {
 
@@ -53,6 +55,18 @@ public class FarmService extends AccessibilityService {
         return Build.VERSION.SDK_INT >= 30;
     }
 
+    /** Đang có kênh chạy (hoặc đang thử nhận diện) không – màn hình chính dùng để cảnh báo. */
+    static boolean isBusy() {
+        FarmService s = instance;
+        return s != null && s.worker != null;
+    }
+
+    // Kênh đang chạy
+    private static final int CH_NONE = 0;
+    private static final int CH_FARM = 1;
+    private static final int CH_ROADMAP = 2;
+    private static final int CH_TEST = 3;
+
     private final Handler main = new Handler(Looper.getMainLooper());
     private WindowManager wm;
 
@@ -60,6 +74,7 @@ public class FarmService extends AccessibilityService {
     private LinearLayout panel;
     private WindowManager.LayoutParams panelParams;
     private TextView statusView;
+    private View collapseButton;
     private boolean collapsed;
 
     // Hộp thoại nổi (menu nhóm, thông tin)
@@ -71,10 +86,11 @@ public class FarmService extends AccessibilityService {
     private int pickIndex;
     private int[] regionFirst;
 
-    // Vòng farm
-    private volatile boolean farming;
-    private Thread worker;
+    // Kênh chạy: chỉ luồng `worker` được điều khiển máy; ■ đặt worker = null là luồng cũ tự dừng.
+    private volatile Thread worker;
+    private volatile int channel = CH_NONE;
     private long lastShotMs;
+    private PrefsMemory memory;
 
     // ================================================================ vòng đời
 
@@ -158,9 +174,7 @@ public class FarmService extends AccessibilityService {
         WindowManager.LayoutParams p = new WindowManager.LayoutParams(
                 w, h,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | extraFlags,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | extraFlags,
                 PixelFormat.TRANSLUCENT);
         p.gravity = Gravity.TOP | Gravity.START;
         return p;
@@ -169,6 +183,32 @@ public class FarmService extends AccessibilityService {
     private void setStatus(final String s) {
         main.post(() -> {
             if (statusView != null) statusView.setText(s);
+        });
+    }
+
+    private static String channelName(int ch) {
+        switch (ch) {
+            case CH_FARM:
+                return "Farm";
+            case CH_ROADMAP:
+                return "Lộ trình";
+            default:
+                return "";
+        }
+    }
+
+    /** Giữ màn hình sáng chỉ khi có kênh đang chạy (màn hình tắt là bot không chạm được vào game). */
+    private void keepScreenOn(final boolean on) {
+        main.post(() -> {
+            if (panel == null || panelParams == null) return;
+            int flag = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+            int flags = on ? (panelParams.flags | flag) : (panelParams.flags & ~flag);
+            if (flags == panelParams.flags) return;
+            panelParams.flags = flags;
+            try {
+                wm.updateViewLayout(panel, panelParams);
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -187,20 +227,22 @@ public class FarmService extends AccessibilityService {
 
         TextView handle = label("☰", 20, Color.WHITE);
         handle.setPadding(dp(8), 0, dp(8), 0);
-        panel.addView(handle);                                                   // 0
-        panel.addView(smallButton("▶", 0xFF2E7D32, v -> startFarm()));          // 1
-        panel.addView(smallButton("■", 0xFFC62828, v -> stopFarm()));           // 2
-        panel.addView(smallButton("📍", 0xFF1565C0, v -> showGroupMenu()));     // 3
-        panel.addView(smallButton("🔍", 0xFF00838F, v -> testVision()));        // 4
-        panel.addView(smallButton("_", 0xFF555555, v -> toggleCollapsed()));    // 5
+        panel.addView(handle);                                                        // 0
+        panel.addView(smallButton("▶", 0xFF2E7D32, v -> startChannel(CH_FARM)));     // 1 kênh Farm
+        panel.addView(smallButton("🛠", 0xFFEF6C00, v -> startChannel(CH_ROADMAP))); // 2 kênh Lộ trình
+        panel.addView(smallButton("■", 0xFFC62828, v -> stopFarm()));                // 3
+        panel.addView(smallButton("📍", 0xFF1565C0, v -> showGroupMenu()));          // 4
+        panel.addView(smallButton("🔍", 0xFF00838F, v -> testVision()));             // 5
+        collapseButton = smallButton("_", 0xFF555555, v -> toggleCollapsed());
+        panel.addView(collapseButton);                                                // 6
 
         statusView = new TextView(this);
         statusView.setTextColor(Color.WHITE);
         statusView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         statusView.setPadding(dp(6), 0, 0, 0);
         statusView.setMaxWidth(dp(280));
-        statusView.setText("Sẵn sàng. Kéo ☰ để di chuyển");
-        panel.addView(statusView);                                               // 6
+        statusView.setText("Sẵn sàng. ▶ Farm, 🛠 Lộ trình. Kéo ☰ để di chuyển");
+        panel.addView(statusView);                                                    // 7
 
         panelParams = overlayParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT, 0);
@@ -239,9 +281,11 @@ public class FarmService extends AccessibilityService {
 
     private void toggleCollapsed() {
         collapsed = !collapsed;
+        // Thu gọn: chỉ còn ☰ và nút _ (kênh vẫn chạy; mở lại để bấm ■).
         for (int i = 1; i < panel.getChildCount(); i++) {
-            if (i == 5) continue; // nút _
-            panel.getChildAt(i).setVisibility(collapsed ? View.GONE : View.VISIBLE);
+            View v = panel.getChildAt(i);
+            if (v == collapseButton) continue;
+            v.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -280,7 +324,7 @@ public class FarmService extends AccessibilityService {
     }
 
     private void showGroupMenu() {
-        if (farming) {
+        if (worker != null) {
             setStatus("Bấm ■ dừng trước khi dạy");
             return;
         }
@@ -468,7 +512,9 @@ public class FarmService extends AccessibilityService {
 
         @Override
         public void status(String s) {
-            setStatus(s);
+            if (Thread.currentThread() != worker) return; // luồng cũ đã bị dừng
+            String name = channelName(channel);
+            setStatus(name.isEmpty() ? s : "[" + name + "] " + s);
         }
     };
 
@@ -496,45 +542,93 @@ public class FarmService extends AccessibilityService {
 
     private Bot newBot() {
         if (ocr == null) ocr = new Ocr();
-        return new Bot(device, ocr, store, Config.settings(this));
+        if (memory == null) memory = new PrefsMemory(this);
+        return new Bot(device, ocr, store, Config.settings(this), memory);
     }
 
-    // ================================================================ vòng farm
+    // ================================================================ kênh chạy
 
-    private void startFarm() {
-        if (farming) return;
-        removePicker();
-        removeDialog();
-        String missing = Points.missingRequired(this);
-        if (!missing.isEmpty()) {
-            setStatus("Chưa dạy: " + missing + ". Bấm 📍");
+    /** Bắt đầu một kênh trên luồng nền. Chỉ một kênh chạy một lúc. */
+    private void startChannel(final int ch) {
+        if (worker != null) {
+            String name = channelName(channel);
+            setStatus((name.isEmpty() ? "Đang bận" : "Kênh " + name + " đang chạy") + " – bấm ■ trước");
             return;
         }
-        farming = true;
-        worker = new Thread(() -> {
-            try {
-                newBot().run();
-            } catch (InterruptedException e) {
-                setStatus("Đã dừng");
-            } catch (RuntimeException e) {
-                setStatus("Lỗi: " + e.getClass().getSimpleName() + " – " + e.getMessage());
-            } finally {
-                farming = false;
+        removePicker();
+        removeDialog();
+        if (ch == CH_FARM) {
+            String missing = Points.missingRequired(this);
+            if (!missing.isEmpty()) {
+                setStatus("Chưa dạy: " + missing + ". Bấm 📍");
+                return;
             }
-        }, "autofarm");
-        worker.start();
+        } else {
+            if (!visionSupported()) {
+                setStatus("Kênh Lộ trình cần Android 11+ để đọc danh sách thợ xây");
+                return;
+            }
+            if (Points.get(this, Points.ATTACK) == null) {
+                setStatus("Chưa dạy nút Tấn công (nhóm Đánh trận) – bot cần nó để biết đang ở làng. Bấm 📍");
+                return;
+            }
+        }
+        Thread t = new Thread(() -> {
+            try {
+                Bot bot = newBot();
+                if (ch == CH_FARM) {
+                    bot.run();
+                } else {
+                    String miss = bot.upgradeMissing();
+                    if (!miss.isEmpty()) {
+                        device.status("Chưa dạy nhóm Tự nâng cấp: " + miss + ". Bấm 📍");
+                        return;
+                    }
+                    bot.runUpgradeChannel();
+                }
+            } catch (InterruptedException e) {
+                if (Thread.currentThread() == worker) setStatus("Đã dừng");
+            } catch (RuntimeException e) {
+                device.status("Lỗi: " + e.getClass().getSimpleName() + " – " + e.getMessage());
+            } finally {
+                finishWorker();
+            }
+        }, ch == CH_FARM ? "autofarm-farm" : "autofarm-lotrinh");
+        synchronized (this) {
+            channel = ch;
+            worker = t;
+        }
+        keepScreenOn(true);
+        t.start();
     }
 
+    /** Luồng nền tự dọn khi kết thúc (chỉ khi nó vẫn là luồng hiện hành). */
+    private void finishWorker() {
+        synchronized (this) {
+            if (worker != Thread.currentThread()) return;
+            worker = null;
+            channel = CH_NONE;
+        }
+        keepScreenOn(false);
+    }
+
+    /** Dừng kênh đang chạy (nút ■). */
     private void stopFarm() {
-        farming = false;
-        Thread t = worker;
+        Thread t;
+        synchronized (this) {
+            t = worker;
+            worker = null;
+            channel = CH_NONE;
+        }
         if (t != null) t.interrupt();
-        worker = null;
+        keepScreenOn(false);
         setStatus("Đã dừng");
     }
 
     private void checkStop() throws InterruptedException {
-        if (!farming || Thread.currentThread().isInterrupted()) throw new InterruptedException();
+        if (Thread.currentThread() != worker || Thread.currentThread().isInterrupted()) {
+            throw new InterruptedException();
+        }
     }
 
     private void sleepMs(long ms) throws InterruptedException {
@@ -546,7 +640,7 @@ public class FarmService extends AccessibilityService {
     // ================================================================ thử nhận diện
 
     private void testVision() {
-        if (farming) {
+        if (worker != null) {
             setStatus("Đang chạy – bấm ■ trước");
             return;
         }
@@ -555,10 +649,9 @@ public class FarmService extends AccessibilityService {
             return;
         }
         setStatus("Đang chụp và nhận diện…");
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             String result;
             try {
-                farming = true; // cho phép chụp trong lúc thử
                 List<String> keys = new ArrayList<>();
                 for (Points.Def d : Points.ALL) if (d.template) keys.add(d.key);
                 result = newBot().diagnose(keys, k -> Points.find(k).label);
@@ -567,14 +660,19 @@ public class FarmService extends AccessibilityService {
             } catch (RuntimeException ex) {
                 result = "Lỗi: " + ex;
             } finally {
-                farming = false;
+                finishWorker();
             }
             final String r = result;
             main.post(() -> {
                 setStatus("Sẵn sàng");
                 showInfo(r);
             });
-        }, "autofarm-test").start();
+        }, "autofarm-test");
+        synchronized (this) {
+            channel = CH_TEST; // luồng thử được phép chụp màn hình
+            worker = t;
+        }
+        t.start();
     }
 
     // ================================================================ chế độ dạy
@@ -672,7 +770,8 @@ public class FarmService extends AccessibilityService {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         pickerView = root;
         wm.addView(root, p);
     }
