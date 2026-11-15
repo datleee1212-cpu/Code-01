@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_desc">AutoFarm dùng Trợ năng để tự chạm vào các vị trí bạn đã cài đặt (bảng nổi ▶ / ■ / 📍). App không đọc nội dung màn hình và không gửi dữ liệu đi đâu.</string>
+    <string name="a11y_desc">AutoFarm dùng Trợ năng để chụp màn hình game (nhận diện nút, đọc số tài nguyên) và tự chạm theo những gì bạn đã dạy. Mọi xử lý chạy trên máy, không gửi dữ liệu đi đâu.</string>
 </resources>
