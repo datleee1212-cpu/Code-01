@@ -26,4 +26,12 @@ public final class Settings {
     public int homeWait = 6;
     /** Kênh Lộ trình: kiểm tra thợ xây mỗi bao nhiêu phút. */
     public int channelIntervalMin = 30;
+    /** Cấp Nhà chính hiện tại (dùng cho lộ trình TH16 → TH17). */
+    public int townHall = 16;
+    /** Cho phép bot tự nâng Nhà chính (mặc định tắt: tự quyết định khi nào lên). */
+    public boolean allowTownHall = false;
+    /** Số tướng nâng cùng lúc tối đa (giữ tướng đi war). */
+    public int maxHeroesBusy = 2;
+    /** Tự chỉnh thông số theo kết quả đã học. */
+    public boolean autoTune = true;
 }
