@@ -527,7 +527,8 @@ public final class Bot {
                 Box cost = b.rightPart(0.38f);
                 boolean affordable = Vision.redRatio(f.img, cost) < 0.03f;
                 int res = Vision.resourceColor(f.img, cost);
-                rows.add(new Roadmap.Row(p, i, name.trim(), Roadmap.classify(name), affordable, res));
+                long price = Parse.number(ocr.read(f.img, cost, true)); // -1 nếu không đọc được
+                rows.add(new Roadmap.Row(p, i, name.trim(), Roadmap.classify(name), affordable, res, price));
                 got++;
             }
             if (got == 0 || p == pages - 1) break;
@@ -539,7 +540,7 @@ public final class Bot {
     }
 
     /** Bấm vào dòng đã chọn và nâng cấp. */
-    private boolean execute(Roadmap.Row row) throws InterruptedException {
+    private boolean execute(Roadmap.Row row, Roadmap.Economy eco) throws InterruptedException {
         if (!ensureHome()) return false;
         if (!tapTarget(Keys.BUILDER, 5000, cfg.stepDelay)) return false;
         for (int p = 0; p < row.page; p++) scrollList();
@@ -547,9 +548,10 @@ public final class Bot {
         dev.tap(b.cx(), b.cy());
         sleep(cfg.stepDelay * 2L);
 
-        // Tường: dùng tiên dược nếu kho tiên dược đầy hơn (và đã dạy nút đó).
+        // Tường: trả bằng loại tài nguyên đang dư (bộ chọn báo qua eco.wallRes), không rõ thì loại đầy hơn.
+        int wallRes = eco == null ? 0 : eco.wallRes;
         boolean useElixir = row.cat == Roadmap.Cat.WALL && visual(Keys.UPGRADE_BTN_ELIXIR)
-                && fill(2) > fill(1);
+                && (wallRes == 2 || (wallRes == 0 && fill(2) > fill(1)));
         boolean opened = useElixir
                 ? tapTarget(Keys.UPGRADE_BTN_ELIXIR, 4000, cfg.stepDelay)
                 : tapTarget(Keys.UPGRADE_BTN, 5000, cfg.stepDelay);
@@ -589,26 +591,45 @@ public final class Bot {
             sleep(1500);
             return;
         }
-        int maxWalls = cfg.maxUpgrades * 4;
+        // Tường nâng tức thì (không tốn thời gian thợ) → cho phép nhiều lượt để xả hết phần dư.
+        int maxWalls = Math.max(10, cfg.maxUpgrades * 4);
         int buildings = 0;
         int walls = 0;
+        float wallFill = cfg.wallPct > 0 ? cfg.wallPct / 100f : -1;
+        boolean th17 = cfg.roadmap == Roadmap.TH16_TH17;
+        Roadmap.Economy eco = new Roadmap.Economy();
+        eco.cap = new long[]{0, cfg.goldCap, cfg.elixirCap, cfg.darkCap};
+        // Tốc độ farm đã học → quyết định nên để dành hay cho thợ làm mục kế tiếp (tối ưu thời gian).
+        eco.lootPerHour = learner.lootPerHour();
         for (int round = 0; round < cfg.maxUpgrades + maxWalls; round++) {
             if (!ensureHome()) return;
             Vision.Frame f = frame();
             readOwn(f);
+            eco.own = own.clone();
             int free = freeBuilders(f);
-            if (free == 0) {
+            status("Nâng cấp: đọc danh sách… " + ownText());
+            if (free == 0 && (wallFill <= 0 || walls >= maxWalls)) {
                 status("Nâng cấp: không còn thợ rảnh");
                 return;
             }
-            status("Nâng cấp: đọc danh sách… " + ownText());
             List<Roadmap.Row> rows = scanList();
             if (rows.isEmpty()) {
                 status("Nâng cấp: không đọc được danh sách");
                 return;
             }
-            float wallFill = cfg.wallPct > 0 ? cfg.wallPct / 100f : -1;
-            Roadmap.Row pick = Roadmap.choose(rows, cfg.roadmap, fills(), 0.95f, wallFill);
+            Roadmap.Row pick;
+            if (free == 0) {
+                // Hết thợ: chỉ còn xả tài nguyên dư vào tường.
+                pick = th17 ? PlanTH17.chooseWall(rows, cfg, fills(), memory, dev.now(), wallFill, eco)
+                        : Roadmap.chooseWall(rows, cfg.roadmap, fills(), wallFill, eco);
+                if (pick == null) {
+                    status("Nâng cấp: không còn thợ rảnh, không có tài nguyên dư");
+                    return;
+                }
+            } else {
+                pick = th17 ? PlanTH17.choose(rows, cfg, fills(), memory, dev.now(), 0.95f, wallFill, eco)
+                        : Roadmap.choose(rows, cfg.roadmap, fills(), 0.95f, wallFill, eco);
+            }
             if (pick == null) {
                 status("Nâng cấp: chưa có mục hợp lý (đang để dành)");
                 return;
@@ -617,7 +638,8 @@ public final class Bot {
             if (isWall && walls >= maxWalls) return;
             if (!isWall && buildings >= cfg.maxUpgrades) return;
             status("Nâng cấp: " + pick);
-            if (!execute(pick)) return;
+            if (!execute(pick, eco)) return;
+            if (th17) PlanTH17.recordUpgrade(memory, pick, dev.now());
             stats.upgradeLog.add(pick.name + " (" + pick.cat.vi + ")");
             if (isWall) {
                 walls++;
