@@ -29,12 +29,17 @@ final class Config {
         }
     }
 
-    static final Field CYCLES = new Field("cycles", "Số vòng farm (0 = chạy mãi)", 0, 0, 100000);
+    static final Field CYCLES = new Field("cycles", "Số vòng chạy (0 = chạy mãi; kênh Lộ trình: số lượt)", 0, 0, 100000);
     static final Field MIN_LOOT = new Field("min_loot", "Chỉ đánh làng có vàng + tiên dược từ (0 = đánh mọi làng)", 300000, 0, 20000000);
     static final Field MAX_SKIPS = new Field("max_skips", "Bỏ qua tối đa bao nhiêu làng rồi đánh luôn", 20, 0, 200);
-    static final Field AUTO_UPGRADE = new Field("auto_upgrade", "Tự nâng cấp công trình", 0, 0, 1, true);
-    static final Field UPGRADE_EVERY = new Field("upgrade_every", "Thử nâng cấp sau mỗi bao nhiêu vòng", 3, 1, 100);
-    static final Field ROADMAP = new Field("roadmap", "Lộ trình nâng cấp: 1 = Cân bằng, 2 = Farm, 3 = Phòng thủ", 1, 1, 3);
+    static final Field AUTO_TUNE = new Field("auto_tune", "Tự cải thiện: tự chỉnh ngưỡng chọn làng & thời gian chờ", 1, 0, 1, true);
+    static final Field AUTO_UPGRADE = new Field("auto_upgrade", "Kênh Farm: tự nâng cấp công trình", 0, 0, 1, true);
+    static final Field UPGRADE_EVERY = new Field("upgrade_every", "Kênh Farm: thử nâng cấp sau mỗi bao nhiêu vòng", 3, 1, 100);
+    static final Field CHANNEL_INTERVAL = new Field("channel_interval", "Kênh Lộ trình: kiểm tra thợ xây mỗi (phút)", 30, 5, 720);
+    static final Field ROADMAP = new Field("roadmap", "Lộ trình nâng cấp: 1 Cân bằng, 2 Farm, 3 Phòng thủ, 4 TH16→TH17", 1, 1, 4);
+    static final Field TOWN_HALL = new Field("town_hall", "Cấp Nhà chính hiện tại", 16, 1, 18);
+    static final Field ALLOW_TOWN_HALL = new Field("allow_town_hall", "Cho phép tự nâng Nhà chính", 0, 0, 1, true);
+    static final Field MAX_HEROES_BUSY = new Field("max_heroes_busy", "Số tướng nâng cùng lúc tối đa", 2, 1, 6);
     static final Field MAX_UPGRADES = new Field("max_upgrades", "Số công trình nâng tối đa mỗi lượt", 3, 1, 10);
     static final Field LIST_ROWS = new Field("list_rows", "Số dòng nhìn thấy trong danh sách thợ xây", 5, 1, 10);
     static final Field LIST_PAGES = new Field("list_pages", "Số trang danh sách cần đọc (cuộn)", 2, 1, 5);
@@ -53,12 +58,47 @@ final class Config {
     static final Field SEARCH_WAIT = new Field("search_wait", "[Không đọc màn hình] Chờ tìm trận (giây)", 8, 2, 60);
     static final Field HOME_WAIT = new Field("home_wait", "[Không đọc màn hình] Chờ về làng (giây)", 6, 2, 60);
 
-    static final Field[] ALL = {
-            CYCLES, MIN_LOOT, MAX_SKIPS, AUTO_UPGRADE, UPGRADE_EVERY, ROADMAP, MAX_UPGRADES,
-            LIST_ROWS, LIST_PAGES, GOLD_CAP, ELIXIR_CAP, DARK_CAP, WALL_PCT, FULL_WAIT,
-            DEPLOY_COUNT, TAP_DELAY, STEP_DELAY, TRAIN_WAIT, BATTLE_WAIT,
-            MATCH_THRESHOLD, TEMPLATE_SIZE, SEARCH_WAIT, HOME_WAIT,
+    /** Một nhóm thông số trên màn hình cài đặt. */
+    static final class Section {
+        final String title;
+        final String note;
+        final Field[] fields;
+
+        Section(String title, String note, Field... fields) {
+            this.title = title;
+            this.note = note;
+            this.fields = fields;
+        }
+    }
+
+    static final Section[] SECTIONS = {
+            new Section("⚔ Farm (kênh ▶)",
+                    "Đánh trận, chọn làng. \"Tự cải thiện\" cho bot tự chỉnh ngưỡng chọn làng và thời gian chờ theo kết quả đã học.",
+                    CYCLES, MIN_LOOT, MAX_SKIPS, DEPLOY_COUNT, AUTO_TUNE),
+            new Section("🛠 Nâng cấp & lộ trình",
+                    "Dùng cho cả kênh Farm (nếu bật tự nâng cấp) và kênh Lộ trình (luôn nâng cấp). "
+                            + "Chọn lộ trình 4 nếu đang ở TH16 muốn lên TH17. Nhà chính chỉ tự nâng khi bạn tích ô cho phép.",
+                    ROADMAP, TOWN_HALL, ALLOW_TOWN_HALL, MAX_HEROES_BUSY, AUTO_UPGRADE, UPGRADE_EVERY,
+                    CHANNEL_INTERVAL, MAX_UPGRADES, LIST_ROWS, LIST_PAGES),
+            new Section("🏦 Kho",
+                    "Điền sức chứa kho (xem trong game) để bot biết kho sắp đầy và xả vào tường.",
+                    GOLD_CAP, ELIXIR_CAP, DARK_CAP, WALL_PCT, FULL_WAIT),
+            new Section("⏱ Thời gian",
+                    "Máy chậm hoặc mạng yếu thì tăng các thời gian chờ.",
+                    TAP_DELAY, STEP_DELAY, TRAIN_WAIT, BATTLE_WAIT, SEARCH_WAIT, HOME_WAIT),
+            new Section("👁 Nhận diện",
+                    "Nhận nhầm → tăng độ giống; bỏ sót → giảm. Đổi cỡ hình mẫu thì phải dạy lại.",
+                    MATCH_THRESHOLD, TEMPLATE_SIZE),
     };
+
+    /** Mọi thông số, theo đúng thứ tự hiển thị trong các nhóm. */
+    static final Field[] ALL;
+
+    static {
+        java.util.List<Field> l = new java.util.ArrayList<>();
+        for (Section s : SECTIONS) java.util.Collections.addAll(l, s.fields);
+        ALL = l.toArray(new Field[0]);
+    }
 
     private Config() {
     }
@@ -88,6 +128,11 @@ final class Config {
         s.matchPct = get(c, MATCH_THRESHOLD);
         s.searchWait = get(c, SEARCH_WAIT);
         s.homeWait = get(c, HOME_WAIT);
+        s.channelIntervalMin = get(c, CHANNEL_INTERVAL);
+        s.townHall = get(c, TOWN_HALL);
+        s.allowTownHall = on(c, ALLOW_TOWN_HALL);
+        s.maxHeroesBusy = get(c, MAX_HEROES_BUSY);
+        s.autoTune = on(c, AUTO_TUNE);
         return s;
     }
 
