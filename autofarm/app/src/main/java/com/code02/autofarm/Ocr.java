@@ -36,8 +36,9 @@ final class Ocr implements TextReader {
         int h = Math.min(img.h, r.b) - t;
         if (w < 4 || h < 4) return null;
         Bitmap crop = Templates.toBitmap(img.crop(l, t, w, h));
-        int scale = h < 60 ? 3 : 2;
-        Bitmap up = Bitmap.createScaledBitmap(crop, w * scale, h * scale, true);
+        // Màn hình nét (vd Galaxy Tab S10+) chữ đã đủ to: phóng ít hoặc không phóng để đọc nhanh hơn.
+        int scale = h < 32 ? 3 : h < 64 ? 2 : 1;
+        Bitmap up = scale == 1 ? crop : Bitmap.createScaledBitmap(crop, w * scale, h * scale, true);
         String s = recognize(up);
         if (digits && Parse.number(s) < 0) s = recognize(binarize(up));
         return s;

@@ -417,6 +417,7 @@ public class FarmService extends AccessibilityService {
             Bitmap b = captureOnce(err);
             lastShotMs = SystemClock.uptimeMillis();
             if (b != null) {
+                b = matchOrientation(b);
                 Img img = Templates.toImg(b);
                 b.recycle();
                 return img;
@@ -424,6 +425,27 @@ public class FarmService extends AccessibilityService {
             Thread.sleep(1000); // thường do chụp quá nhanh, chờ rồi thử lại
         }
         return null;
+    }
+
+    /**
+     * Một số máy trả ảnh chụp theo hướng "gốc" của màn hình. Galaxy Tab S10+ có hướng gốc là ngang
+     * nên thường đã khớp với game; nếu lệch (ảnh dọc khi game đang ngang) thì xoay cho khớp tọa độ chạm.
+     */
+    @SuppressWarnings("deprecation")
+    private Bitmap matchOrientation(Bitmap b) {
+        android.graphics.Point real = new android.graphics.Point();
+        Display d = wm.getDefaultDisplay();
+        d.getRealSize(real);
+        boolean shotLandscape = b.getWidth() > b.getHeight();
+        boolean screenLandscape = real.x > real.y;
+        if (shotLandscape == screenLandscape) return b;
+        int degrees = (360 - d.getRotation() * 90) % 360;
+        if (degrees == 0) degrees = 90;
+        android.graphics.Matrix m = new android.graphics.Matrix();
+        m.postRotate(degrees);
+        Bitmap r = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, false);
+        if (r != b) b.recycle();
+        return r;
     }
 
     @TargetApi(30)

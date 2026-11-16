@@ -104,13 +104,22 @@ public final class Vision {
         public final Img img;
         final Gray g2;
         final Gray g4;
+        final Gray g8;
         private final Integral i4;
+        private Integral i8;
 
         public Frame(Img b) {
             img = b;
             g2 = Gray.of(b, 2);
             g4 = g2.half();
+            g8 = g4.half();
             i4 = new Integral(g4);
+        }
+
+        /** Ảnh tích phân mức 1/8, chỉ tính khi cần (màn hình độ phân giải cao). */
+        private Integral i8() {
+            if (i8 == null) i8 = new Integral(g8);
+            return i8;
         }
 
         public int width() {
@@ -127,12 +136,16 @@ public final class Vision {
         public final int side;
         final Prep p2;
         final Prep p4;
+        /** Mức 1/8: chỉ có khi mẫu đủ lớn (màn hình như Galaxy Tab S10+ 2800×1752). */
+        final Prep p8;
 
         public Tpl(Img crop) {
             side = Math.max(crop.w, crop.h);
             Gray g2 = Gray.of(crop, 2);
             p2 = Prep.of(g2);
-            p4 = Prep.of(g2.half());
+            Gray g4 = g2.half();
+            p4 = Prep.of(g4);
+            p8 = side / 8 >= 12 ? Prep.of(g4.half()) : null;
         }
 
         public boolean usable() {
@@ -227,38 +240,27 @@ public final class Vision {
         return (float) (num / Math.sqrt(var * t.tss));
     }
 
-    /**
-     * Tìm mọi vị trí giống mẫu trong vùng (tọa độ màn hình) mà mẫu nằm gọn bên trong.
-     * Kết quả là tâm của mẫu theo tọa độ màn hình, xếp theo độ giống giảm dần.
-     */
-    public static List<Match> findAll(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr, int max) {
-        List<Match> out = new ArrayList<>();
-        if (t == null || !t.usable()) return out;
-        Prep p4 = t.p4;
-        Prep p2 = t.p2;
-        Gray g4 = f.g4;
-        int x0 = clamp(rx0 / 4, 0, g4.w);
-        int y0 = clamp(ry0 / 4, 0, g4.h);
-        int x1 = Math.min(rx1 / 4, g4.w) - p4.w;
-        int y1 = Math.min(ry1 / 4, g4.h) - p4.h;
-        if (x1 < x0 || y1 < y0) return out;
-
+    /** Tìm thô trên cả vùng ở một mức thu nhỏ: trả về các cực đại địa phương {x, y, điểm} (tọa độ mức đó). */
+    private static List<float[]> coarse(Gray g, Integral in, Prep p, int sc,
+                                        int rx0, int ry0, int rx1, int ry1, float minScore) {
+        List<float[]> cands = new ArrayList<>();
+        int x0 = clamp(rx0 / sc, 0, g.w);
+        int y0 = clamp(ry0 / sc, 0, g.h);
+        int x1 = Math.min(rx1 / sc, g.w) - p.w;
+        int y1 = Math.min(ry1 / sc, g.h) - p.h;
+        if (x1 < x0 || y1 < y0) return cands;
         int cw = x1 - x0 + 1;
         int ch = y1 - y0 + 1;
         float[] map = new float[cw * ch];
         for (int y = 0; y < ch; y++) {
             for (int x = 0; x < cw; x++) {
-                map[y * cw + x] = scoreFast(g4, f.i4, p4, x0 + x, y0 + y);
+                map[y * cw + x] = scoreFast(g, in, p, x0 + x, y0 + y);
             }
         }
-
-        // Cực đại địa phương ở mức thô.
-        float coarseThr = thr - 0.15f;
-        List<float[]> cands = new ArrayList<>();
         for (int y = 0; y < ch; y++) {
             for (int x = 0; x < cw; x++) {
                 float v = map[y * cw + x];
-                if (v < coarseThr) continue;
+                if (v < minScore) continue;
                 boolean peak = true;
                 for (int dy = -1; dy <= 1 && peak; dy++) {
                     for (int dx = -1; dx <= 1; dx++) {
@@ -276,32 +278,60 @@ public final class Vision {
             }
         }
         Collections.sort(cands, (a, b) -> Float.compare(b[2], a[2]));
-        if (cands.size() > 40) cands = cands.subList(0, 40);
+        return cands.size() > 40 ? new ArrayList<>(cands.subList(0, 40)) : cands;
+    }
 
-        // Tinh chỉnh ở 1/2 độ phân giải.
-        Gray g2 = f.g2;
-        List<Match> found = new ArrayList<>();
-        for (float[] c : cands) {
-            int bx = (int) c[0] * 2;
-            int by = (int) c[1] * 2;
-            float best = -1;
-            int bestX = bx;
-            int bestY = by;
-            for (int dy = -3; dy <= 3; dy++) {
-                for (int dx = -3; dx <= 3; dx++) {
-                    int x = bx + dx;
-                    int y = by + dy;
-                    if (x < 0 || y < 0 || x + p2.w > g2.w || y + p2.h > g2.h) continue;
-                    float s = scoreDirect(g2, p2, x, y);
-                    if (s > best) {
-                        best = s;
-                        bestX = x;
-                        bestY = y;
-                    }
+    /** Dò ±3 điểm ảnh quanh (bx, by) ở mức g. Trả về {x, y, điểm} tốt nhất hoặc null. */
+    private static float[] refine(Gray g, Prep p, int bx, int by) {
+        float best = -1;
+        int bestX = bx;
+        int bestY = by;
+        for (int dy = -3; dy <= 3; dy++) {
+            for (int dx = -3; dx <= 3; dx++) {
+                int x = bx + dx;
+                int y = by + dy;
+                if (x < 0 || y < 0 || x + p.w > g.w || y + p.h > g.h) continue;
+                float sc = scoreDirect(g, p, x, y);
+                if (sc > best) {
+                    best = sc;
+                    bestX = x;
+                    bestY = y;
                 }
             }
-            if (best >= thr) {
-                found.add(new Match((bestX * 2) + p2.w, (bestY * 2) + p2.h, best));
+        }
+        return best < 0 ? null : new float[]{bestX, bestY, best};
+    }
+
+    /**
+     * Tìm mọi vị trí giống mẫu trong vùng (tọa độ màn hình) mà mẫu nằm gọn bên trong.
+     * Kết quả là tâm của mẫu theo tọa độ màn hình, xếp theo độ giống giảm dần.
+     */
+    public static List<Match> findAll(Frame f, Tpl t, int rx0, int ry0, int rx1, int ry1, float thr, int max) {
+        List<Match> out = new ArrayList<>();
+        if (t == null || !t.usable()) return out;
+        // Màn hình lớn + mẫu lớn: tìm thô ở 1/8 (nhanh hơn ~16 lần), rồi tinh chỉnh dần 1/4 → 1/2.
+        boolean deep = t.p8 != null && f.g8.w >= 200;
+        Gray gc = deep ? f.g8 : f.g4;
+        Prep pc = deep ? t.p8 : t.p4;
+        Integral ic = deep ? f.i8() : f.i4;
+        int sc = deep ? 8 : 4;
+        List<float[]> cands = coarse(gc, ic, pc, sc, rx0, ry0, rx1, ry1, thr - (deep ? 0.2f : 0.15f));
+        if (deep) {
+            List<float[]> mid = new ArrayList<>();
+            for (float[] c : cands) {
+                float[] r = refine(f.g4, t.p4, (int) c[0] * 2, (int) c[1] * 2);
+                if (r != null && r[2] >= thr - 0.12f) mid.add(r);
+            }
+            cands = mid;
+        }
+
+        // Tinh chỉnh ở 1/2 độ phân giải.
+        Prep p2 = t.p2;
+        List<Match> found = new ArrayList<>();
+        for (float[] c : cands) {
+            float[] r = refine(f.g2, p2, (int) c[0] * 2, (int) c[1] * 2);
+            if (r != null && r[2] >= thr) {
+                found.add(new Match(((int) r[0] * 2) + p2.w, ((int) r[1] * 2) + p2.h, r[2]));
             }
         }
         Collections.sort(found, (a, b) -> Float.compare(b.score, a.score));

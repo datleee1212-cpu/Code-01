@@ -135,6 +135,19 @@ public class MainActivity extends Activity {
             i.setData(Uri.parse("package:" + getPackageName()));
             startActivity(i);
         }));
+        col.addView(text("Máy Samsung (vd Galaxy Tab S10+): để bot không bị tắt giữa chừng, đặt Pin của AutoFarm "
+                + "là \"Không hạn chế\" (Thông tin ứng dụng → Pin → Không hạn chế). Trong Game Booster, tắt "
+                + "\"Chặn cử chỉ / chạm\" nếu có. Chơi game ở chế độ toàn màn hình, xoay ngang như bình thường.",
+                14, 0xFF333333));
+        col.addView(button("Tắt tối ưu pin cho AutoFarm", () -> {
+            try {
+                startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+            } catch (Exception e) {
+                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                i.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(i);
+            }
+        }));
 
         col.addView(heading("Bước 2 – Dạy bot"));
         col.addView(text("Vào game, bấm 📍 trên bảng nổi, chọn nhóm rồi chạm vào từng thứ theo hướng dẫn. "

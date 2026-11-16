@@ -24,6 +24,20 @@ không root, không máy tính, không giả lập, không gửi dữ liệu đi
   Thời gian nghỉ giữa hai lượt chỉnh ở "Kênh Lộ trình: kiểm tra thợ xây mỗi (phút)" (mặc định 30, từ 5 tới 720).
   "Số vòng chạy" = 0 thì chạy mãi; đặt số khác thì kênh Lộ trình dừng sau chừng đó lượt.
 
+
+## Galaxy Tab S10+ (2800×1752)
+
+App đã được chỉnh và kiểm thử cho màn hình này (bộ thử `sim/src/sim/TabS10Tests.java`):
+- Nhận diện tìm thô ở 1/8 độ phân giải rồi tinh chỉnh dần, nên quét cả màn hình 2800×1752 vẫn nhanh.
+- App xin thêm bộ nhớ (ảnh chụp mỗi lần ~20 MB), tự xoay ảnh nếu hướng ảnh chụp lệch với game.
+- Cỡ hình mẫu mặc định 8% ≈ 140 điểm ảnh, vừa với nút trong game ở màn hình này.
+
+Cài đặt nên làm trên máy Samsung:
+1. **Pin → Không hạn chế** cho AutoFarm (nút "Tắt tối ưu pin cho AutoFarm" trong app), để Samsung không tắt bot giữa chừng.
+2. **Game Booster**: tắt các mục chặn chạm / chặn cử chỉ nếu có.
+3. Chơi game **xoay ngang, toàn màn hình** và giữ nguyên hướng xoay khi dạy và khi chạy.
+4. Android 14/15: nếu không bật được Trợ năng, vào Thông tin ứng dụng → ⋮ → **Cho phép cài đặt bị hạn chế**.
+
 ## Kênh Farm làm gì trong mỗi vòng
 
 1. **Về làng chính nếu bị lạc**: nhận ra nút *Tấn công* để biết đang ở làng. Nếu không thấy thì tự
