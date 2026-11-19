@@ -14,6 +14,17 @@ android {
         versionName '0.4.1'
     }
 
+    // Khóa ký cố định: bản cập nhật cài đè được lên bản cũ, không mất dữ liệu đã dạy.
+    // (App tự dùng, không đưa lên Play Store.)
+    signingConfigs {
+        debug {
+            storeFile file('autofarm.keystore')
+            storePassword 'autofarm'
+            keyAlias 'autofarm'
+            keyPassword 'autofarm'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
